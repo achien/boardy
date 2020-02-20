@@ -1,0 +1,11 @@
+.piece {
+  background-size: contain;
+  width: 100%;
+  height: 100%;
+  /* With a transform the square background is not dragged.  No idea why. */
+  transform: translate(0, 0);
+}
+
+.square {
+  flex: 1;
+}
