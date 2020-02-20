@@ -45,6 +45,8 @@ const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
   },
 };
 
+const SELECTED_FILTER = 'hue-rotate(60deg) brightness(50%)';
+
 export type SquareHighlight = null | 'selected' | 'targeted' | 'hovered';
 
 interface SquareProps {
@@ -158,29 +160,32 @@ export function Square(props: SquareProps): JSX.Element {
     );
   }
 
-  let filter;
-  switch (props.highlight) {
-    case 'selected':
-      filter = 'hue-rotate(60deg)';
-      break;
-    case 'targeted':
-      filter = 'hue-rotate(180deg)';
-      break;
-    case 'hovered':
-      filter = 'hue-rotate(120deg)';
-      break;
-    case null:
-      filter = null;
-      break;
+  let dot = null;
+  if (props.highlight === 'targeted') {
+    const dotStyle = {
+      color: COLORS[chess.square_color(square)],
+      filter: SELECTED_FILTER,
+      fontSize: props.approxWidth + 'px',
+      lineHeight: props.approxWidth + 'px',
+    };
+    dot = (
+      <div className={css.dot} style={dotStyle}>
+        •
+      </div>
+    );
   }
-  const style = {
+
+  let filter = null;
+  if (props.highlight === 'selected' || props.highlight === 'hovered') {
+    filter = SELECTED_FILTER;
+  }
+  const backgroudStyle = {
     backgroundColor: COLORS[chess.square_color(square)],
     filter: filter,
   };
   return (
     <div
       className={css.square}
-      style={style}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       onPointerEnter={onPointerEnter}
@@ -190,6 +195,8 @@ export function Square(props: SquareProps): JSX.Element {
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
+      <div className={css.squareBackground} style={backgroudStyle} />
+      {dot}
       {pieceElem}
     </div>
   );

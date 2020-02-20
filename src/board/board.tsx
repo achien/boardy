@@ -66,8 +66,10 @@ export function Board(props: BoardProps): JSX.Element {
       } else if (piece && piece.color === chess.turn()) {
         // Select any square with a piece owned by the current player
         setSelectedSquare(square);
+        setHoveredSquare(null);
       } else {
         setSelectedSquare(null);
+        setHoveredSquare(null);
       }
     },
     [selectedSquare, movesByTarget, makeMove, chess],
