@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChessInstance, Square as TSquare } from 'chess.js';
+import { ChessInstance, Square as TSquare, Move } from 'chess.js';
 
 import { Square, SquareHighlight } from './square';
 
@@ -12,32 +12,49 @@ export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
   const [selectedSquare, setSelectedSquare] = React.useState(null);
 
+  const movesFromSelected =
+    selectedSquare === null
+      ? []
+      : chess.moves({
+          verbose: true,
+          square: selectedSquare,
+        });
+  const movesByTarget: Record<string, Move> = {};
+  movesFromSelected.forEach(move => {
+    if (move.to in movesByTarget) {
+      console.error(
+        'Multiple moves from ' +
+          selectedSquare +
+          ' to ' +
+          move.to +
+          ': ' +
+          movesByTarget[move.to].san +
+          ' and ' +
+          move.san,
+      );
+    }
+    movesByTarget[move.to] = move;
+  });
+
   const onPointerDown = React.useCallback(
     (square: TSquare) => {
-      if (square !== selectedSquare) {
-        // Select any square with a piece owned by the current player
-        const piece = chess.get(square);
-        if (piece && piece.color === chess.turn()) {
-          setSelectedSquare(square);
-        } else {
-          setSelectedSquare(null);
-        }
-      } else {
+      const piece = chess.get(square);
+      if (square === selectedSquare) {
         // Toggle the already selected square
+        setSelectedSquare(null);
+      } else if (square in movesByTarget) {
+        // Move the piece
+        chess.move(movesByTarget[square]);
+        setSelectedSquare(null);
+      } else if (piece && piece.color === chess.turn()) {
+        // Select any square with a piece owned by the current player
+        setSelectedSquare(square);
+      } else {
         setSelectedSquare(null);
       }
     },
-    [selectedSquare, chess],
+    [selectedSquare, movesByTarget, chess],
   );
-
-  const targets = new Set();
-  if (selectedSquare !== null) {
-    const movesFromSelected = chess.moves({
-      verbose: true,
-      square: selectedSquare,
-    });
-    movesFromSelected.forEach(move => targets.add(move.to));
-  }
 
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
@@ -48,7 +65,7 @@ export function Board(props: BoardProps): JSX.Element {
       let highlight: SquareHighlight = null;
       if (square === selectedSquare) {
         highlight = 'selected';
-      } else if (targets.has(square)) {
+      } else if (square in movesByTarget) {
         highlight = 'targeted';
       }
       rankSquares.push(

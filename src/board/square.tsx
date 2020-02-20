@@ -18,7 +18,7 @@ import wq from './pieces/cburnett/wq.svg';
 import wr from './pieces/cburnett/wr.svg';
 
 const COLORS = {
-  // chessboard.js
+  // chessboard.js, Lichess
   light: '#f0d9b5',
   dark: '#b58863',
   // Wikipedia (cburnett)
