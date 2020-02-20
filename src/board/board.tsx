@@ -12,6 +12,7 @@ export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
   const [selectedSquare, setSelectedSquare] = React.useState(null);
   const [deselectingSquare, setDeselectingSquare] = React.useState(null);
+  const [hoveredSquare, setHoveredSquare] = React.useState(null);
 
   const movesFromSelected =
     selectedSquare === null
@@ -24,14 +25,8 @@ export function Board(props: BoardProps): JSX.Element {
   movesFromSelected.forEach(move => {
     if (move.to in movesByTarget) {
       console.error(
-        'Multiple moves from ' +
-          selectedSquare +
-          ' to ' +
-          move.to +
-          ': ' +
-          movesByTarget[move.to].san +
-          ' and ' +
-          move.san,
+        `Multiple moves from ${selectedSquare} to ${move.to}: ` +
+          `${movesByTarget[move.to].san} and ${move.san}`,
       );
     }
     movesByTarget[move.to] = move;
@@ -83,6 +78,23 @@ export function Board(props: BoardProps): JSX.Element {
     [movesByTarget, chess],
   );
 
+  const onHoverEnter = React.useCallback(
+    (square: TSquare) => {
+      if (square in movesByTarget) {
+        setHoveredSquare(square);
+      }
+    },
+    [movesByTarget],
+  );
+  const onHoverLeave = React.useCallback(
+    (square: TSquare) => {
+      if (square === hoveredSquare) {
+        setHoveredSquare(null);
+      }
+    },
+    [hoveredSquare],
+  );
+
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
     const rankSquares = [];
@@ -92,6 +104,8 @@ export function Board(props: BoardProps): JSX.Element {
       let highlight: SquareHighlight = null;
       if (square === selectedSquare) {
         highlight = 'selected';
+      } else if (square === hoveredSquare) {
+        highlight = 'hovered';
       } else if (square in movesByTarget) {
         highlight = 'targeted';
       }
@@ -104,6 +118,10 @@ export function Board(props: BoardProps): JSX.Element {
           highlight={highlight}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
+          onPointerEnter={onHoverEnter}
+          onPointerLeave={onHoverLeave}
+          onDragEnter={onHoverEnter}
+          onDragLeave={onHoverLeave}
           onDrop={onDrop}
         />,
       );

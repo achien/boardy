@@ -45,7 +45,7 @@ const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
   },
 };
 
-export type SquareHighlight = null | 'selected' | 'targeted';
+export type SquareHighlight = null | 'selected' | 'targeted' | 'hovered';
 
 interface SquareProps {
   chess: ChessInstance;
@@ -55,6 +55,10 @@ interface SquareProps {
   highlight: SquareHighlight;
   onPointerDown: (square: TSquare) => void;
   onPointerUp: (square: TSquare) => void;
+  onPointerEnter: (square: TSquare) => void;
+  onPointerLeave: (square: TSquare) => void;
+  onDragEnter: (square: TSquare) => void;
+  onDragLeave: (square: TSquare) => void;
   onDrop: (square: TSquare) => void;
 }
 
@@ -114,11 +118,28 @@ export function Square(props: SquareProps): JSX.Element {
     const cb = props.onPointerUp;
     cb(square);
   }, [props.onPointerUp, square]);
+  const onPointerEnter = React.useCallback(() => {
+    const cb = props.onPointerEnter;
+    cb(square);
+  }, [props.onPointerEnter, square]);
+  const onPointerLeave = React.useCallback(() => {
+    const cb = props.onPointerLeave;
+    cb(square);
+  }, [props.onPointerLeave, square]);
 
+  const onDragEnter = React.useCallback(() => {
+    const cb = props.onDragEnter;
+    cb(square);
+  }, [props.onDragEnter, square]);
+  const onDragLeave = React.useCallback(() => {
+    const cb = props.onDragLeave;
+    cb(square);
+  }, [props.onDragLeave, square]);
   const onDragOver = React.useCallback((e: React.DragEvent) => {
     // prevent default or else you cannot drop
     e.preventDefault();
   }, []);
+
   const onDrop = React.useCallback(() => {
     const cb = props.onDrop;
     cb(square);
@@ -145,6 +166,9 @@ export function Square(props: SquareProps): JSX.Element {
     case 'targeted':
       filter = 'hue-rotate(180deg)';
       break;
+    case 'hovered':
+      filter = 'hue-rotate(120deg)';
+      break;
     case null:
       filter = null;
       break;
@@ -159,6 +183,10 @@ export function Square(props: SquareProps): JSX.Element {
       style={style}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
