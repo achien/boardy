@@ -3,7 +3,7 @@ import { app, BrowserWindow } from 'electron';
 function createWindow(): void {
   const win = new BrowserWindow({
     width: 1280,
-    height: 720,
+    height: 800,
   });
   win.loadFile('dist/app.html');
 }

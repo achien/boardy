@@ -3,8 +3,9 @@ import { ChessInstance, Move, Square as TSquare } from 'chess.js';
 
 import { Square, SquareHighlight } from './Square';
 
+import css from './Board.css';
+
 interface BoardProps {
-  width: number;
   chess: ChessInstance;
   onMove?: (move: Move) => void;
 }
@@ -32,9 +33,15 @@ function getMovesByTarget(
 
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
+  const ref = React.useRef<HTMLDivElement>();
+  const [width, setWidth] = React.useState(0);
   const [selectedSquare, setSelectedSquare] = React.useState(null);
   const [deselectingSquare, setDeselectingSquare] = React.useState(null);
   const [hoveredSquare, setHoveredSquare] = React.useState(null);
+
+  React.useEffect(() => {
+    setWidth(ref.current.clientWidth);
+  }, []);
 
   const makeMove = React.useCallback(
     (move: Move) => {
@@ -133,7 +140,7 @@ export function Board(props: BoardProps): JSX.Element {
           key={square}
           chess={chess}
           square={square}
-          approxWidth={Math.floor(props.width / 8)}
+          approxWidth={Math.floor(width / 8)}
           highlight={highlight}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
@@ -156,11 +163,9 @@ export function Board(props: BoardProps): JSX.Element {
       </div>,
     );
   }
-  const boardStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    width: props.width + 'px',
-    height: props.width + 'px',
-  };
-  return <div style={boardStyle}>{ranks}</div>;
+  return (
+    <div ref={ref} className={css.board}>
+      {ranks}
+    </div>
+  );
 }

@@ -3,6 +3,11 @@
   text-align: center;
 }
 
+.boardContainer {
+  width: 600px;
+  height: 600px;
+}
+
 .inputRow {
   display: flex;
   flex-direction: row;

@@ -90,7 +90,9 @@ function App(): JSX.Element {
 
   return (
     <div className={css.app}>
-      <Board width={600} chess={game.chess} onMove={onMove} />
+      <div className={css.boardContainer}>
+        <Board chess={game.chess} onMove={onMove} />
+      </div>
       <div className={css.inputWrapper}>
         <div className={css.inputRow}>
           <label className={css.inputLabel} htmlFor="fen">
