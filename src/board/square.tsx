@@ -54,6 +54,8 @@ interface SquareProps {
   approxWidth: number;
   highlight: SquareHighlight;
   onPointerDown: (square: TSquare) => void;
+  onPointerUp: (square: TSquare) => void;
+  onDrop: (square: TSquare) => void;
 }
 
 interface PieceProps {
@@ -106,19 +108,21 @@ export function Square(props: SquareProps): JSX.Element {
 
   const onPointerDown = React.useCallback(() => {
     const cb = props.onPointerDown;
-    cb(props.square);
-  }, [props.square, props.onPointerDown]);
+    cb(square);
+  }, [props.onPointerDown, square]);
+  const onPointerUp = React.useCallback(() => {
+    const cb = props.onPointerUp;
+    cb(square);
+  }, [props.onPointerUp, square]);
 
   const onDragOver = React.useCallback((e: React.DragEvent) => {
     // prevent default or else you cannot drop
     e.preventDefault();
   }, []);
-  const onDrop = React.useCallback(
-    (e: React.DragEvent) => {
-      console.log('drop', square, e.target, e);
-    },
-    [square],
-  );
+  const onDrop = React.useCallback(() => {
+    const cb = props.onDrop;
+    cb(square);
+  }, [props.onDrop, square]);
 
   let pieceElem = null;
   const piece = chess.get(square);
@@ -154,6 +158,7 @@ export function Square(props: SquareProps): JSX.Element {
       className={css.square}
       style={style}
       onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
       onDragOver={onDragOver}
       onDrop={onDrop}
     >

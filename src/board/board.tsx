@@ -11,6 +11,7 @@ interface BoardProps {
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
   const [selectedSquare, setSelectedSquare] = React.useState(null);
+  const [deselectingSquare, setDeselectingSquare] = React.useState(null);
 
   const movesFromSelected =
     selectedSquare === null
@@ -40,8 +41,11 @@ export function Board(props: BoardProps): JSX.Element {
     (square: TSquare) => {
       const piece = chess.get(square);
       if (square === selectedSquare) {
-        // Toggle the already selected square
-        setSelectedSquare(null);
+        // We want to toggle the square if it is currently select, but we
+        // cannot do this immediately in case this pointerdown is the start
+        // of a drag.  Instead, note what we're doing and finish the toggle
+        // in onPointerUp.
+        setDeselectingSquare(square);
       } else if (square in movesByTarget) {
         // Move the piece
         chess.move(movesByTarget[square]);
@@ -54,6 +58,29 @@ export function Board(props: BoardProps): JSX.Element {
       }
     },
     [selectedSquare, movesByTarget, chess],
+  );
+  const onPointerUp = React.useCallback(
+    (square: TSquare) => {
+      // Toggle square if it is currently selected.  Handle this separately
+      // from onPointerDown if we want to drag the currently selected square
+      // so we do not deselect it before dragging.
+      if (square === deselectingSquare) {
+        // Toggle the already selected square
+        setSelectedSquare(null);
+      }
+      setDeselectingSquare(null);
+    },
+    [deselectingSquare],
+  );
+  const onDrop = React.useCallback(
+    (square: TSquare) => {
+      if (square in movesByTarget) {
+        // Move the piece
+        chess.move(movesByTarget[square]);
+        setSelectedSquare(null);
+      }
+    },
+    [movesByTarget, chess],
   );
 
   const ranks = [];
@@ -76,6 +103,8 @@ export function Board(props: BoardProps): JSX.Element {
           approxWidth={Math.floor(props.width / 8)}
           highlight={highlight}
           onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onDrop={onDrop}
         />,
       );
     }
