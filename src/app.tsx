@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import Chess from 'chess.js';
+import Chess, { ChessInstance, Move, ShortMove } from 'chess.js';
 
 import { Board } from './board/board';
 
@@ -11,6 +11,35 @@ document.addEventListener('dragover', (e: DragEvent) => {
   // square so things are less janky!
   e.preventDefault();
 });
+
+class Game {
+  initialFen: string | null;
+  chess: ChessInstance;
+
+  constructor(initialFen?: string | null) {
+    this.initialFen = initialFen;
+    if (initialFen != null) {
+      this.chess = new Chess(initialFen);
+    } else {
+      this.chess = new Chess();
+    }
+  }
+
+  clone(): Game {
+    const moves = this.chess.history();
+    const clone = new Game(this.initialFen);
+    for (const move of moves) {
+      clone.chess.move(move);
+    }
+    return clone;
+  }
+
+  move(move: string | ShortMove): Game {
+    const nextGame = this.clone();
+    nextGame.chess.move(move);
+    return nextGame;
+  }
+}
 
 function App(): JSX.Element {
   const chess = new Chess();
@@ -29,7 +58,28 @@ function App(): JSX.Element {
   console.log(chess.moves({ verbose: true }));
   chess.move('O-O');
   console.log(chess.pgn());
-  return <Board width={600} chess={chess} />;
+
+  console.log('------chess2');
+  const chess2 = new Chess(
+    '4r3/8/2p2PPk/1p6/pP2p1R1/P1B5/2P2K2/3r4 w - - 1 45',
+  );
+  console.log(chess2.history());
+  console.log(chess2.moves());
+  chess2.move('f7');
+  console.log('after f7', chess2.history());
+  chess2.reset();
+  console.log(chess2.fen());
+
+  const [game, setGame] = React.useState(new Game());
+
+  const onMove = React.useCallback(
+    (move: Move) => {
+      setGame(game.move(move));
+    },
+    [game],
+  );
+
+  return <Board width={600} chess={game.chess} onMove={onMove} />;
 }
 
 const root = document.createElement('div');

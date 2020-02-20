@@ -1,11 +1,33 @@
 import * as React from 'react';
-import { ChessInstance, Square as TSquare, Move } from 'chess.js';
+import { ChessInstance, Move, Square as TSquare } from 'chess.js';
 
 import { Square, SquareHighlight } from './square';
 
 interface BoardProps {
   width: number;
   chess: ChessInstance;
+  onMove?: (move: Move) => void;
+}
+
+function getMovesByTarget(
+  chess: ChessInstance,
+  square: TSquare,
+): Record<string, Move> {
+  const moves = chess.moves({
+    verbose: true,
+    square: square,
+  });
+  const movesByTarget: Record<string, Move> = {};
+  moves.forEach(move => {
+    if (move.to in movesByTarget) {
+      console.error(
+        `Multiple moves from ${square} to ${move.to}: ` +
+          `${movesByTarget[move.to].san} and ${move.san}`,
+      );
+    }
+    movesByTarget[move.to] = move;
+  });
+  return movesByTarget;
 }
 
 export function Board(props: BoardProps): JSX.Element {
@@ -14,23 +36,20 @@ export function Board(props: BoardProps): JSX.Element {
   const [deselectingSquare, setDeselectingSquare] = React.useState(null);
   const [hoveredSquare, setHoveredSquare] = React.useState(null);
 
-  const movesFromSelected =
-    selectedSquare === null
-      ? []
-      : chess.moves({
-          verbose: true,
-          square: selectedSquare,
-        });
-  const movesByTarget: Record<string, Move> = {};
-  movesFromSelected.forEach(move => {
-    if (move.to in movesByTarget) {
-      console.error(
-        `Multiple moves from ${selectedSquare} to ${move.to}: ` +
-          `${movesByTarget[move.to].san} and ${move.san}`,
-      );
-    }
-    movesByTarget[move.to] = move;
-  });
+  const makeMove = React.useCallback(
+    (move: Move) => {
+      const onMove = props.onMove;
+      if (onMove) {
+        onMove(move);
+      }
+      setSelectedSquare(null);
+      setHoveredSquare(null);
+    },
+    [props.onMove],
+  );
+
+  const movesByTarget: Record<string, Move> =
+    selectedSquare === null ? {} : getMovesByTarget(chess, selectedSquare);
 
   const onPointerDown = React.useCallback(
     (square: TSquare) => {
@@ -43,8 +62,7 @@ export function Board(props: BoardProps): JSX.Element {
         setDeselectingSquare(square);
       } else if (square in movesByTarget) {
         // Move the piece
-        chess.move(movesByTarget[square]);
-        setSelectedSquare(null);
+        makeMove(movesByTarget[square]);
       } else if (piece && piece.color === chess.turn()) {
         // Select any square with a piece owned by the current player
         setSelectedSquare(square);
@@ -52,7 +70,7 @@ export function Board(props: BoardProps): JSX.Element {
         setSelectedSquare(null);
       }
     },
-    [selectedSquare, movesByTarget, chess],
+    [selectedSquare, movesByTarget, makeMove, chess],
   );
   const onPointerUp = React.useCallback(
     (square: TSquare) => {
@@ -71,11 +89,10 @@ export function Board(props: BoardProps): JSX.Element {
     (square: TSquare) => {
       if (square in movesByTarget) {
         // Move the piece
-        chess.move(movesByTarget[square]);
-        setSelectedSquare(null);
+        makeMove(movesByTarget[square]);
       }
     },
-    [movesByTarget, chess],
+    [movesByTarget, makeMove],
   );
 
   const onHoverEnter = React.useCallback(
