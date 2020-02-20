@@ -1,0 +1,15 @@
+.inputLabel {
+  margin-right: 5px;
+}
+
+.inputWrapper {
+  width: 100%;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.input {
+  width: 80%;
+  text-align: center;
+  font-size: 14px;
+}

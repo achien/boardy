@@ -1,11 +1,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import classNames from 'classnames';
 
 import Chess, { ChessInstance, Move, ShortMove } from 'chess.js';
 
-import { Board } from './board/board';
+import { StatefulInput } from './StatefulInput';
+import { Board } from './board/Board';
 
-import css from './app.css';
+import css from './App.css';
 
 document.addEventListener('dragover', (e: DragEvent) => {
   // Prevent default so dropping is possible.
@@ -43,72 +45,6 @@ class Game {
   }
 }
 
-interface FenInputProps {
-  fen: string;
-  // Return true if successful change, false if unsuccessful
-  onFenInput: (fen: string) => void;
-}
-
-function FenInput(props: FenInputProps): JSX.Element {
-  const [value, setValue] = React.useState(props.fen);
-  const [focused, setFocused] = React.useState(false);
-
-  const onChange = React.useCallback((e: React.FormEvent) => {
-    const target = e.target as HTMLInputElement;
-    setValue(target.value);
-  }, []);
-
-  const onFenInput = React.useCallback(() => {
-    const cb = props.onFenInput;
-    cb(value);
-  }, [props.onFenInput, value]);
-  const onFocus = React.useCallback(() => setFocused(true), []);
-  const onBlur = React.useCallback(() => {
-    setFocused(false);
-    onFenInput();
-  }, [onFenInput]);
-  const onKeyDown = React.useCallback(
-    (e: React.KeyboardEvent) => {
-      // "Enter" submits
-      if (e.keyCode === 13) {
-        onFenInput();
-      }
-    },
-    [onFenInput],
-  );
-
-  // Update FEN if the component is not focused
-  const prevFenRef = React.useRef(props.fen);
-  React.useEffect(() => {
-    if (prevFenRef.current === props.fen) {
-      return;
-    }
-    prevFenRef.current = props.fen;
-    if (!focused) {
-      setValue(props.fen);
-    }
-  }, [props.fen, focused]);
-
-  return (
-    <div className={css.fenInputWrapper}>
-      <label className={css.fenInputLabel} htmlFor={'fen'}>
-        FEN:
-      </label>
-      <input
-        id="fen"
-        className={css.fenInput}
-        value={value}
-        autoComplete="off"
-        onChange={onChange}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onSubmit={onFenInput}
-        onKeyDown={onKeyDown}
-      />
-    </div>
-  );
-}
-
 function App(): JSX.Element {
   const [game, setGame] = React.useState(new Game());
 
@@ -121,13 +57,13 @@ function App(): JSX.Element {
 
   const onFenInput = React.useCallback(
     (fen: string) => {
+      if (fen === game.chess.fen()) {
+        // Don't refresh the game if user clicks in and out of the input
+        return;
+      }
       const valid = game.chess.validate_fen(fen);
       if (!valid.valid) {
         console.warn(`Invalid fen (${valid.error_number}): ${valid.error}`);
-        return;
-      }
-      if (fen === game.chess.fen()) {
-        // Don't refresh the game if user clicks in and out of the input
         return;
       }
       // Fen changed, let's update the game
@@ -135,11 +71,52 @@ function App(): JSX.Element {
     },
     [game],
   );
+  const onPgnInput = React.useCallback(
+    (pgn: string) => {
+      if (pgn === game.chess.pgn()) {
+        // Don't refresh the game if the user clicks in and out of the input
+        return;
+      }
+      const newGame = new Game();
+      const valid = newGame.chess.load_pgn(pgn);
+      if (!valid) {
+        console.warn(`Invalid pgn: ${pgn}`);
+        return;
+      }
+      setGame(newGame);
+    },
+    [game],
+  );
 
   return (
     <div className={css.app}>
       <Board width={600} chess={game.chess} onMove={onMove} />
-      <FenInput fen={game.chess.fen()} onFenInput={onFenInput} />
+      <div className={css.inputWrapper}>
+        <div className={css.inputRow}>
+          <label className={css.inputLabel} htmlFor="fen">
+            FEN:
+          </label>
+          <StatefulInput
+            value={game.chess.fen()}
+            onValueInput={onFenInput}
+            id="fen"
+            className={classNames(css.input, css.fenInput)}
+          />
+        </div>
+        <div className={css.inputRow}>
+          <label className={css.inputLabel} htmlFor="pgn">
+            PGN:
+          </label>
+          <StatefulInput
+            type="textarea"
+            value={game.chess.pgn()}
+            onValueInput={onPgnInput}
+            id="pgn"
+            className={classNames(css.input, css.pgnInput)}
+            resize="vertical"
+          />
+        </div>
+      </div>
     </div>
   );
 }

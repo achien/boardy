@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ChessInstance, Move, Square as TSquare } from 'chess.js';
 
-import { Square, SquareHighlight } from './square';
+import { Square, SquareHighlight } from './Square';
 
 interface BoardProps {
   width: number;

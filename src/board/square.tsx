@@ -2,7 +2,7 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { ChessInstance, Square as TSquare, Piece } from 'chess.js';
 
-import css from './square.css';
+import css from './Square.css';
 
 import bb from './pieces/cburnett/bb.svg';
 import bk from './pieces/cburnett/bk.svg';

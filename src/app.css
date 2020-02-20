@@ -3,18 +3,27 @@
   text-align: center;
 }
 
-.fenInputWrapper {
-  width: 100%;
-  text-align: center;
+.inputRow {
+  display: flex;
+  flex-direction: row;
   margin-top: 5px;
 }
 
-.fenInputLabel {
+.inputLabel {
+  width: 50px;
   margin-right: 5px;
 }
 
-.fenInput {
-  width: 80%;
-  text-align: center;
+.input {
+  flex: 1;
   font-size: 14px;
+}
+
+.fenInput {
+  text-align: center;
+}
+
+.pgnInput {
+  padding: 3px 5px;
+  height: 100px;
 }
