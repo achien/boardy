@@ -1,54 +1,47 @@
+const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const jsConfig = {
+  mode: 'development',
+  devtool: 'inline-source-map',
+  module: {
+    rules: [
+      {
+        enforce: 'pre',
+        test: /\.(ts|js)x?$/,
+        use: 'eslint-loader',
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'],
+  },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+  },
+};
+
 module.exports = [
-  {
+  merge(jsConfig, {
     entry: './src/main.ts',
     target: 'electron-main',
-    mode: 'development',
-    devtool: 'inline-source-map',
-    module: {
-      rules: [
-        {
-          enforce: 'pre',
-          test: /\.(ts|js)x?$/,
-          use: 'eslint-loader',
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.tsx?$/,
-          use: 'ts-loader',
-          exclude: /node_modules/,
-        },
-      ],
-    },
-    resolve: {
-      extensions: ['.ts', '.tsx', '.js'],
-    },
     output: {
       filename: 'main.js',
-      path: path.resolve(__dirname, 'dist'),
     },
-  },
-  {
+  }),
+  merge(jsConfig, {
     entry: './src/app.tsx',
     target: 'electron-renderer',
-    mode: 'development',
-    devtool: 'inline-source-map',
     module: {
       rules: [
-        {
-          enforce: 'pre',
-          test: /\.(ts|js)x?$/,
-          use: 'eslint-loader',
-          exclude: /node_modules/,
-        },
-        {
-          test: /\.tsx?$/,
-          use: 'ts-loader',
-          exclude: /node_modules/,
-        },
         {
           test: /\.css$/i,
           use: [
@@ -75,12 +68,8 @@ module.exports = [
         title: 'Boardy',
       }),
     ],
-    resolve: {
-      extensions: ['.ts', '.tsx', '.js'],
-    },
     output: {
       filename: 'app.js',
-      path: path.resolve(__dirname, 'dist'),
     },
-  },
+  }),
 ];

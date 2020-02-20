@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { Piece } from 'chess.js';
+import classNames from 'classnames';
+import { useDrag, DragPreviewImage } from 'react-dnd';
+import { Square as TSquare, Piece } from 'chess.js';
 
 import css from './square.css';
 
@@ -47,16 +49,24 @@ const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
 interface SquareProps {
   // board width / 8.  Not exact since we use flexbox to syle.
   approxWidth: number;
-  color: 'black' | 'white';
+  square: TSquare;
   highlighted: boolean;
   piece: Piece | null;
+  onPointerDown: (square: TSquare) => void;
 }
 
 export function Square(props: SquareProps): JSX.Element {
-  let icon = null;
+  const [isDragging, setIsDragging] = React.useState(false);
   const iconRef = React.useRef(null);
+
+  const onPointerDown = React.useCallback(() => {
+    const cb = props.onPointerDown;
+    cb(props.square);
+  }, [props.square, props.onPointerDown]);
+
   const onDragStart = React.useCallback(
     (e: React.DragEvent) => {
+      setIsDragging(true);
       // Center the piece on the mouse while dragging
       e.dataTransfer.setDragImage(
         iconRef.current,
@@ -66,29 +76,56 @@ export function Square(props: SquareProps): JSX.Element {
     },
     [iconRef, props.approxWidth],
   );
+  const onDragEnd = React.useCallback(() => setIsDragging(false), []);
+  const onDragOver = React.useCallback((e: React.DragEvent) => {
+    // prevent default or else you cannot drop
+    e.preventDefault();
+  }, []);
+  const onDrop = React.useCallback(
+    (e: React.DragEvent) => {
+      console.log('drop', props.square, e.target, e);
+    },
+    [props.square],
+  );
+
+  let icon = null;
   const piece = props.piece;
   if (piece !== null) {
     const iconStyle = {
       backgroundImage: 'url(' + PIECES[piece.color][piece.type] + ')',
     };
+    const iconClass = classNames({
+      [css.piece]: true,
+      [css.dragging]: isDragging,
+    });
     icon = (
       <div
         ref={iconRef}
-        className={css.piece}
+        className={iconClass}
         style={iconStyle}
         draggable="true"
         onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
       />
     );
   }
 
+  const rankIdx = props.square.charCodeAt(0) - 'a'.charCodeAt(0);
+  const fileIdx = props.square.charCodeAt(1) - '1'.charCodeAt(0);
+  const isWhiteSquare = (rankIdx + fileIdx) % 2 === 0;
   const style = {
-    backgroundColor: props.color === 'black' ? COLORS.black : COLORS.white,
+    backgroundColor: isWhiteSquare ? COLORS.white : COLORS.black,
     filter: props.highlighted ? 'hue-rotate(180deg)' : null,
     color: props.piece && props.piece.color === 'w' ? 'white' : 'black',
   };
   return (
-    <div className={css.square} style={style}>
+    <div
+      className={css.square}
+      style={style}
+      onPointerDown={onPointerDown}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
       {icon}
     </div>
   );

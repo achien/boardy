@@ -9,21 +9,36 @@ interface BoardProps {
 }
 
 export function Board(props: BoardProps): JSX.Element {
+  const [selectedSquare, setSelectedSquare] = React.useState(null);
+
+  // Select any square that has a piece on it
+  const onPointerDown = React.useCallback(
+    (square: TSquare) => {
+      if (square !== selectedSquare) {
+        if (props.chess.get(square) === null) {
+          setSelectedSquare(null);
+        } else {
+          setSelectedSquare(square);
+        }
+      }
+    },
+    [selectedSquare, props.chess],
+  );
+
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
     const rankSquares = [];
     for (let f = 1; f <= 8; f++) {
       const file = String.fromCharCode('a'.charCodeAt(0) + f - 1);
       const square = (file + rank) as TSquare;
-      const color = (f + rank) % 2 == 0 ? 'white' : 'black';
-      const highlighted = square == 'e3' || square === 'e4';
       rankSquares.push(
         <Square
           key={square}
+          square={square}
           approxWidth={Math.floor(props.width / 8)}
-          color={color}
-          highlighted={highlighted}
+          highlighted={square === selectedSquare}
           piece={props.chess.get(square)}
+          onPointerDown={onPointerDown}
         />,
       );
     }
