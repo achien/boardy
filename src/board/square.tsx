@@ -46,23 +46,25 @@ const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
   },
 };
 
+export type SquareHighlight = null | 'selected' | 'targeted';
+
 interface SquareProps {
   // board width / 8.  Not exact since we use flexbox to syle.
   approxWidth: number;
   square: TSquare;
-  highlighted: boolean;
+  highlight: SquareHighlight;
   piece: Piece | null;
   onPointerDown: (square: TSquare) => void;
 }
 
-export function Square(props: SquareProps): JSX.Element {
+interface PieceProps {
+  approxWidth: number;
+  piece: Piece;
+}
+
+function Piece(props: PieceProps): JSX.Element {
   const [isDragging, setIsDragging] = React.useState(false);
   const iconRef = React.useRef(null);
-
-  const onPointerDown = React.useCallback(() => {
-    const cb = props.onPointerDown;
-    cb(props.square);
-  }, [props.square, props.onPointerDown]);
 
   const onDragStart = React.useCallback(
     (e: React.DragEvent) => {
@@ -77,16 +79,6 @@ export function Square(props: SquareProps): JSX.Element {
     [iconRef, props.approxWidth],
   );
   const onDragEnd = React.useCallback(() => setIsDragging(false), []);
-  const onDragOver = React.useCallback((e: React.DragEvent) => {
-    // prevent default or else you cannot drop
-    e.preventDefault();
-  }, []);
-  const onDrop = React.useCallback(
-    (e: React.DragEvent) => {
-      console.log('drop', props.square, e.target, e);
-    },
-    [props.square],
-  );
 
   let icon = null;
   const piece = props.piece;
@@ -109,13 +101,49 @@ export function Square(props: SquareProps): JSX.Element {
       />
     );
   }
+  return icon;
+}
+
+export function Square(props: SquareProps): JSX.Element {
+  const onPointerDown = React.useCallback(() => {
+    const cb = props.onPointerDown;
+    cb(props.square);
+  }, [props.square, props.onPointerDown]);
+
+  const onDragOver = React.useCallback((e: React.DragEvent) => {
+    // prevent default or else you cannot drop
+    e.preventDefault();
+  }, []);
+  const onDrop = React.useCallback(
+    (e: React.DragEvent) => {
+      console.log('drop', props.square, e.target, e);
+    },
+    [props.square],
+  );
+
+  let piece = null;
+  if (props.piece !== null) {
+    piece = <Piece piece={props.piece} approxWidth={props.approxWidth} />;
+  }
 
   const rankIdx = props.square.charCodeAt(0) - 'a'.charCodeAt(0);
   const fileIdx = props.square.charCodeAt(1) - '1'.charCodeAt(0);
   const isWhiteSquare = (rankIdx + fileIdx) % 2 === 0;
+  let filter;
+  switch (props.highlight) {
+    case 'selected':
+      filter = 'hue-rotate(120deg)';
+      break;
+    case 'targeted':
+      filter = 'hue-rotate(240deg)';
+      break;
+    case null:
+      filter = null;
+      break;
+  }
   const style = {
     backgroundColor: isWhiteSquare ? COLORS.white : COLORS.black,
-    filter: props.highlighted ? 'hue-rotate(180deg)' : null,
+    filter: filter,
     color: props.piece && props.piece.color === 'w' ? 'white' : 'black',
   };
   return (
@@ -126,7 +154,7 @@ export function Square(props: SquareProps): JSX.Element {
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      {icon}
+      {piece}
     </div>
   );
 }

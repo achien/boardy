@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ChessInstance, Square as TSquare } from 'chess.js';
 
-import { Square } from './square';
+import { Square, SquareHighlight } from './square';
 
 interface BoardProps {
   width: number;
@@ -9,21 +9,37 @@ interface BoardProps {
 }
 
 export function Board(props: BoardProps): JSX.Element {
+  const { chess } = props;
   const [selectedSquare, setSelectedSquare] = React.useState(null);
 
-  // Select any square that has a piece on it
   const onPointerDown = React.useCallback(
     (square: TSquare) => {
       if (square !== selectedSquare) {
-        if (props.chess.get(square) === null) {
+        // Select any square with a piece owned by the current player
+        const piece = chess.get(square);
+        if (piece === null) {
           setSelectedSquare(null);
-        } else {
+        } else if (piece.color === chess.turn()) {
           setSelectedSquare(square);
         }
+      } else {
+        // Toggle the already selected square
+        setSelectedSquare(null);
       }
     },
-    [selectedSquare, props.chess],
+    [selectedSquare, chess],
   );
+
+  const targets = new Set();
+  if (selectedSquare !== null) {
+    const movesFromSelected = chess.moves({
+      verbose: true,
+      square: selectedSquare,
+    });
+    console.log(selectedSquare, movesFromSelected);
+    movesFromSelected.forEach(move => targets.add(move.to));
+  }
+  console.log(targets);
 
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
@@ -31,12 +47,18 @@ export function Board(props: BoardProps): JSX.Element {
     for (let f = 1; f <= 8; f++) {
       const file = String.fromCharCode('a'.charCodeAt(0) + f - 1);
       const square = (file + rank) as TSquare;
+      let highlight: SquareHighlight = null;
+      if (square === selectedSquare) {
+        highlight = 'selected';
+      } else if (targets.has(square)) {
+        highlight = 'targeted';
+      }
       rankSquares.push(
         <Square
           key={square}
           square={square}
           approxWidth={Math.floor(props.width / 8)}
-          highlighted={square === selectedSquare}
+          highlight={highlight}
           piece={props.chess.get(square)}
           onPointerDown={onPointerDown}
         />,
