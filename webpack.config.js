@@ -11,6 +11,12 @@ module.exports = [
     module: {
       rules: [
         {
+          enforce: 'pre',
+          test: /\.(ts|js)x?$/,
+          use: 'eslint-loader',
+          exclude: /node_modules/,
+        },
+        {
           test: /\.tsx?$/,
           use: 'ts-loader',
           exclude: /node_modules/,
@@ -32,6 +38,12 @@ module.exports = [
     devtool: 'inline-source-map',
     module: {
       rules: [
+        {
+          enforce: 'pre',
+          test: /\.(ts|js)x?$/,
+          use: 'eslint-loader',
+          exclude: /node_modules/,
+        },
         {
           test: /\.tsx?$/,
           use: 'ts-loader',

@@ -52,22 +52,24 @@ interface SquareProps {
   piece: Piece | null;
 }
 
-export function Square(props: SquareProps): any {
+export function Square(props: SquareProps): JSX.Element {
   let icon = null;
   const iconRef = React.useRef(null);
-  const piece = props.piece;
-  if (piece !== null) {
-    const iconSrc = PIECES[piece.color][piece.type];
-    const onDragStart = (e: React.DragEvent) => {
+  const onDragStart = React.useCallback(
+    (e: React.DragEvent) => {
+      // Center the piece on the mouse while dragging
       e.dataTransfer.setDragImage(
         iconRef.current,
         props.approxWidth / 2,
         props.approxWidth / 2,
       );
-    };
-
+    },
+    [iconRef, props.approxWidth],
+  );
+  const piece = props.piece;
+  if (piece !== null) {
     const iconStyle = {
-      backgroundImage: `url(${iconSrc})`,
+      backgroundImage: 'url(' + PIECES[piece.color][piece.type] + ')',
     };
     icon = (
       <div
@@ -75,6 +77,7 @@ export function Square(props: SquareProps): any {
         className={css.piece}
         style={iconStyle}
         draggable="true"
+        onDragStart={onDragStart}
       />
     );
   }

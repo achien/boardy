@@ -1,6 +1,6 @@
 declare module '*.css' {
-  const classes: any;
-  export default classes;
+  const classNames: Record<string, string>;
+  export default classNames;
 }
 
 declare module '*.svg' {

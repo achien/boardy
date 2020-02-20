@@ -8,7 +8,7 @@ interface BoardProps {
   chess: ChessInstance;
 }
 
-export function Board(props: BoardProps): any {
+export function Board(props: BoardProps): JSX.Element {
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
     const rankSquares = [];
@@ -27,7 +27,7 @@ export function Board(props: BoardProps): any {
         />,
       );
     }
-    const rankStyle = {
+    const rankStyle: React.CSSProperties = {
       display: 'flex',
       flexDirection: 'row',
       flex: 1,
@@ -38,7 +38,7 @@ export function Board(props: BoardProps): any {
       </div>,
     );
   }
-  const boardStyle = {
+  const boardStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     width: props.width + 'px',
