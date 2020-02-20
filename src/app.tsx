@@ -5,6 +5,8 @@ import Chess, { ChessInstance, Move, ShortMove } from 'chess.js';
 
 import { Board } from './board/board';
 
+import css from './app.css';
+
 document.addEventListener('dragover', (e: DragEvent) => {
   // Prevent default so dropping is possible.
   // This also removes the animation snapping the piece back to the original
@@ -41,35 +43,73 @@ class Game {
   }
 }
 
-function App(): JSX.Element {
-  const chess = new Chess();
-  console.log(chess.moves());
-  console.log(chess.moves({ verbose: true }));
-  console.log('e2', chess.moves({ verbose: true, square: 'e2' }));
-  console.log('e3', chess.moves({ verbose: true, square: 'e3' }));
-  console.log('g1', chess.moves({ verbose: true, square: 'g1' }));
-  chess.move('Nf3');
-  chess.move('Nf6');
-  chess.move('e3');
-  chess.move('e6');
-  chess.move('Be2');
-  chess.move('Be7');
-  console.log(chess.moves());
-  console.log(chess.moves({ verbose: true }));
-  chess.move('O-O');
-  console.log(chess.pgn());
+interface FenInputProps {
+  fen: string;
+  // Return true if successful change, false if unsuccessful
+  onFenInput: (fen: string) => void;
+}
 
-  console.log('------chess2');
-  const chess2 = new Chess(
-    '4r3/8/2p2PPk/1p6/pP2p1R1/P1B5/2P2K2/3r4 w - - 1 45',
+function FenInput(props: FenInputProps): JSX.Element {
+  const [value, setValue] = React.useState(props.fen);
+  const [focused, setFocused] = React.useState(false);
+
+  const onChange = React.useCallback((e: React.FormEvent) => {
+    const target = e.target as HTMLInputElement;
+    setValue(target.value);
+  }, []);
+
+  const onFenInput = React.useCallback(() => {
+    const cb = props.onFenInput;
+    cb(value);
+  }, [props.onFenInput, value]);
+  const onFocus = React.useCallback(() => setFocused(true), []);
+  const onBlur = React.useCallback(() => {
+    setFocused(false);
+    onFenInput();
+  }, [onFenInput]);
+  const onKeyDown = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      // "Enter" submits
+      if (e.keyCode === 13) {
+        onFenInput();
+      }
+    },
+    [onFenInput],
   );
-  console.log(chess2.history());
-  console.log(chess2.moves());
-  chess2.move('f7');
-  console.log('after f7', chess2.history());
-  chess2.reset();
-  console.log(chess2.fen());
 
+  // Update FEN if the component is not focused
+  const prevFenRef = React.useRef(props.fen);
+  React.useEffect(() => {
+    if (prevFenRef.current === props.fen) {
+      return;
+    }
+    prevFenRef.current = props.fen;
+    if (!focused) {
+      setValue(props.fen);
+    }
+  }, [props.fen, focused]);
+
+  return (
+    <div className={css.fenInputWrapper}>
+      <label className={css.fenInputLabel} htmlFor={'fen'}>
+        FEN:
+      </label>
+      <input
+        id="fen"
+        className={css.fenInput}
+        value={value}
+        autoComplete="off"
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onSubmit={onFenInput}
+        onKeyDown={onKeyDown}
+      />
+    </div>
+  );
+}
+
+function App(): JSX.Element {
   const [game, setGame] = React.useState(new Game());
 
   const onMove = React.useCallback(
@@ -79,7 +119,29 @@ function App(): JSX.Element {
     [game],
   );
 
-  return <Board width={600} chess={game.chess} onMove={onMove} />;
+  const onFenInput = React.useCallback(
+    (fen: string) => {
+      const valid = game.chess.validate_fen(fen);
+      if (!valid.valid) {
+        console.warn(`Invalid fen (${valid.error_number}): ${valid.error}`);
+        return;
+      }
+      if (fen === game.chess.fen()) {
+        // Don't refresh the game if user clicks in and out of the input
+        return;
+      }
+      // Fen changed, let's update the game
+      setGame(new Game(fen));
+    },
+    [game],
+  );
+
+  return (
+    <div className={css.app}>
+      <Board width={600} chess={game.chess} onMove={onMove} />
+      <FenInput fen={game.chess.fen()} onFenInput={onFenInput} />
+    </div>
+  );
 }
 
 const root = document.createElement('div');
