@@ -17,10 +17,10 @@ export function Board(props: BoardProps): JSX.Element {
       if (square !== selectedSquare) {
         // Select any square with a piece owned by the current player
         const piece = chess.get(square);
-        if (piece === null) {
-          setSelectedSquare(null);
-        } else if (piece.color === chess.turn()) {
+        if (piece && piece.color === chess.turn()) {
           setSelectedSquare(square);
+        } else {
+          setSelectedSquare(null);
         }
       } else {
         // Toggle the already selected square
@@ -36,10 +36,8 @@ export function Board(props: BoardProps): JSX.Element {
       verbose: true,
       square: selectedSquare,
     });
-    console.log(selectedSquare, movesFromSelected);
     movesFromSelected.forEach(move => targets.add(move.to));
   }
-  console.log(targets);
 
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
@@ -56,10 +54,10 @@ export function Board(props: BoardProps): JSX.Element {
       rankSquares.push(
         <Square
           key={square}
+          chess={chess}
           square={square}
           approxWidth={Math.floor(props.width / 8)}
           highlight={highlight}
-          piece={props.chess.get(square)}
           onPointerDown={onPointerDown}
         />,
       );

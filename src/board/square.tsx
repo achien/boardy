@@ -1,7 +1,6 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { useDrag, DragPreviewImage } from 'react-dnd';
-import { Square as TSquare, Piece } from 'chess.js';
+import { ChessInstance, Square as TSquare, Piece } from 'chess.js';
 
 import css from './square.css';
 
@@ -20,11 +19,11 @@ import wr from './pieces/cburnett/wr.svg';
 
 const COLORS = {
   // chessboard.js
-  white: '#f0d9b5',
-  black: '#b58863',
+  light: '#f0d9b5',
+  dark: '#b58863',
   // Wikipedia (cburnett)
-  // white: '#ffce9e',
-  // black: '#d18b47',
+  // light: '#ffce9e',
+  // dark: '#d18b47',
 };
 
 const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
@@ -49,17 +48,18 @@ const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
 export type SquareHighlight = null | 'selected' | 'targeted';
 
 interface SquareProps {
+  chess: ChessInstance;
+  square: TSquare;
   // board width / 8.  Not exact since we use flexbox to syle.
   approxWidth: number;
-  square: TSquare;
   highlight: SquareHighlight;
-  piece: Piece | null;
   onPointerDown: (square: TSquare) => void;
 }
 
 interface PieceProps {
-  approxWidth: number;
   piece: Piece;
+  draggable: boolean;
+  approxWidth: number;
 }
 
 function Piece(props: PieceProps): JSX.Element {
@@ -80,31 +80,30 @@ function Piece(props: PieceProps): JSX.Element {
   );
   const onDragEnd = React.useCallback(() => setIsDragging(false), []);
 
-  let icon = null;
-  const piece = props.piece;
-  if (piece !== null) {
-    const iconStyle = {
-      backgroundImage: 'url(' + PIECES[piece.color][piece.type] + ')',
-    };
-    const iconClass = classNames({
-      [css.piece]: true,
-      [css.dragging]: isDragging,
-    });
-    icon = (
-      <div
-        ref={iconRef}
-        className={iconClass}
-        style={iconStyle}
-        draggable="true"
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-      />
-    );
-  }
-  return icon;
+  const { piece, draggable } = props;
+  const iconStyle = {
+    backgroundImage: 'url(' + PIECES[piece.color][piece.type] + ')',
+  };
+  const iconClass = classNames({
+    [css.piece]: true,
+    [css.draggable]: draggable,
+    [css.dragging]: isDragging,
+  });
+  return (
+    <div
+      ref={iconRef}
+      className={iconClass}
+      style={iconStyle}
+      draggable={draggable ? 'true' : 'false'}
+      onDragStart={draggable ? onDragStart : null}
+      onDragEnd={draggable ? onDragEnd : null}
+    />
+  );
 }
 
 export function Square(props: SquareProps): JSX.Element {
+  const { chess, square } = props;
+
   const onPointerDown = React.useCallback(() => {
     const cb = props.onPointerDown;
     cb(props.square);
@@ -116,35 +115,39 @@ export function Square(props: SquareProps): JSX.Element {
   }, []);
   const onDrop = React.useCallback(
     (e: React.DragEvent) => {
-      console.log('drop', props.square, e.target, e);
+      console.log('drop', square, e.target, e);
     },
-    [props.square],
+    [square],
   );
 
-  let piece = null;
-  if (props.piece !== null) {
-    piece = <Piece piece={props.piece} approxWidth={props.approxWidth} />;
+  let pieceElem = null;
+  const piece = chess.get(square);
+  if (piece !== null) {
+    const draggable = piece.color === chess.turn();
+    pieceElem = (
+      <Piece
+        piece={piece}
+        draggable={draggable}
+        approxWidth={props.approxWidth}
+      />
+    );
   }
 
-  const rankIdx = props.square.charCodeAt(0) - 'a'.charCodeAt(0);
-  const fileIdx = props.square.charCodeAt(1) - '1'.charCodeAt(0);
-  const isWhiteSquare = (rankIdx + fileIdx) % 2 === 0;
   let filter;
   switch (props.highlight) {
     case 'selected':
-      filter = 'hue-rotate(120deg)';
+      filter = 'hue-rotate(60deg)';
       break;
     case 'targeted':
-      filter = 'hue-rotate(240deg)';
+      filter = 'hue-rotate(180deg)';
       break;
     case null:
       filter = null;
       break;
   }
   const style = {
-    backgroundColor: isWhiteSquare ? COLORS.white : COLORS.black,
+    backgroundColor: COLORS[chess.square_color(square)],
     filter: filter,
-    color: props.piece && props.piece.color === 'w' ? 'white' : 'black',
   };
   return (
     <div
@@ -154,7 +157,7 @@ export function Square(props: SquareProps): JSX.Element {
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      {piece}
+      {pieceElem}
     </div>
   );
 }
