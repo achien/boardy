@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-type StatefulInputProps = {
+interface StatefulInputProps extends React.HTMLAttributes<HTMLElement> {
   type?: 'text' | 'textarea';
   value: string;
   onValueInput: (value: string) => void;
-} & Record<string, any>;
+}
 
 export function StatefulInput(props: StatefulInputProps): JSX.Element {
   const { type, value, onValueInput, ...otherProps } = props;

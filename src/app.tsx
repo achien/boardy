@@ -115,7 +115,6 @@ function App(): JSX.Element {
             onValueInput={onPgnInput}
             id="pgn"
             className={classNames(css.input, css.pgnInput)}
-            resize="vertical"
           />
         </div>
       </div>
