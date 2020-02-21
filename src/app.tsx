@@ -20,7 +20,7 @@ class Game {
   initialFen: string | null;
   chess: ChessInstance;
 
-  constructor(initialFen?: string | null) {
+  constructor(initialFen: string | null = null) {
     this.initialFen = initialFen;
     if (initialFen != null) {
       this.chess = new Chess(initialFen);

@@ -72,17 +72,20 @@ interface PieceProps {
 
 function Piece(props: PieceProps): JSX.Element {
   const [isDragging, setIsDragging] = React.useState(false);
-  const iconRef = React.useRef(null);
+  const iconRef = React.useRef<HTMLDivElement>(null);
 
   const onDragStart = React.useCallback(
     (e: React.DragEvent) => {
       setIsDragging(true);
       // Center the piece on the mouse while dragging
-      e.dataTransfer.setDragImage(
-        iconRef.current,
-        props.approxWidth / 2,
-        props.approxWidth / 2,
-      );
+      const iconElem = iconRef.current;
+      if (iconElem != null) {
+        e.dataTransfer.setDragImage(
+          iconElem,
+          props.approxWidth / 2,
+          props.approxWidth / 2,
+        );
+      }
     },
     [iconRef, props.approxWidth],
   );
@@ -103,8 +106,8 @@ function Piece(props: PieceProps): JSX.Element {
       className={iconClass}
       style={iconStyle}
       draggable={draggable ? 'true' : 'false'}
-      onDragStart={draggable ? onDragStart : null}
-      onDragEnd={draggable ? onDragEnd : null}
+      onDragStart={draggable ? onDragStart : undefined}
+      onDragEnd={draggable ? onDragEnd : undefined}
     />
   );
 }
@@ -191,7 +194,7 @@ export function Square(props: SquareProps): JSX.Element {
     }
   }
 
-  let filter = null;
+  let filter = undefined;
   if (props.highlight === 'selected' || props.highlight === 'hovered') {
     filter = SELECTED_FILTER;
   }

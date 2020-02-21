@@ -4,8 +4,10 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "noImplicitAny": true,
+    "strictNullChecks": true,
     "module": "es6",
     "target": "es6",
     "jsx": "react"
-  }
+  },
+  "exclude": ["node_modules"]
 }

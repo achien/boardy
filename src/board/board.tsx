@@ -33,15 +33,23 @@ function getMovesByTarget(
 
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
-  const ref = React.useRef<HTMLDivElement>();
+  const ref = React.useRef<HTMLDivElement>(null);
   const [width, setWidth] = React.useState(0);
-  const [selectedSquare, setSelectedSquare] = React.useState(null);
-  const [deselectingSquare, setDeselectingSquare] = React.useState(null);
-  const [hoveredSquare, setHoveredSquare] = React.useState(null);
-
+  const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
+    null,
+  );
+  const [
+    deselectingSquare,
+    setDeselectingSquare,
+  ] = React.useState<TSquare | null>(null);
+  const [hoveredSquare, setHoveredSquare] = React.useState<TSquare | null>(
+    null,
+  );
   React.useEffect(() => {
-    setWidth(ref.current.clientWidth);
-  }, []);
+    if (ref.current != null) {
+      setWidth(ref.current.clientWidth);
+    }
+  }, [ref]);
 
   const makeMove = React.useCallback(
     (move: Move) => {
