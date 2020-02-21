@@ -160,19 +160,35 @@ export function Square(props: SquareProps): JSX.Element {
     );
   }
 
-  let dot = null;
+  const squareColor = COLORS[chess.square_color(square)];
+  let target = null;
   if (props.highlight === 'targeted') {
-    const dotStyle = {
-      color: COLORS[chess.square_color(square)],
-      filter: SELECTED_FILTER,
-      fontSize: props.approxWidth + 'px',
-      lineHeight: props.approxWidth + 'px',
-    };
-    dot = (
-      <div className={css.dot} style={dotStyle}>
-        •
-      </div>
-    );
+    if (chess.get(square) != null) {
+      // Render triangular borders on a square with a piece
+      const gradientColors = `${squareColor} 10%, transparent 10%`;
+      const targetStyle = {
+        filter: SELECTED_FILTER,
+        background:
+          `linear-gradient(to bottom left, ${gradientColors}), ` +
+          `linear-gradient(to bottom right, ${gradientColors}), ` +
+          `linear-gradient(to top left, ${gradientColors}), ` +
+          `linear-gradient(to top right, ${gradientColors})`,
+      };
+      target = <div className={css.target} style={targetStyle} />;
+    } else {
+      // Render a dot on an empty square
+      const dotStyle = {
+        color: squareColor,
+        filter: SELECTED_FILTER,
+        fontSize: props.approxWidth + 'px',
+        lineHeight: props.approxWidth + 'px',
+      };
+      target = (
+        <div className={css.target} style={dotStyle}>
+          •
+        </div>
+      );
+    }
   }
 
   let filter = null;
@@ -180,7 +196,7 @@ export function Square(props: SquareProps): JSX.Element {
     filter = SELECTED_FILTER;
   }
   const backgroudStyle = {
-    backgroundColor: COLORS[chess.square_color(square)],
+    backgroundColor: squareColor,
     filter: filter,
   };
   return (
@@ -196,7 +212,7 @@ export function Square(props: SquareProps): JSX.Element {
       onDrop={onDrop}
     >
       <div className={css.squareBackground} style={backgroudStyle} />
-      {dot}
+      {target}
       {pieceElem}
     </div>
   );
