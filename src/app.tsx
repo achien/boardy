@@ -8,6 +8,7 @@ import { StatefulInput } from './StatefulInput';
 import { Board } from './board/Board';
 
 import css from './App.css';
+import { Engine } from './uci';
 
 document.addEventListener('dragover', (e: DragEvent) => {
   // Prevent default so dropping is possible.
@@ -121,6 +122,12 @@ function App(): JSX.Element {
     </div>
   );
 }
+
+const stockfish = new Engine(
+  'stockfish',
+  '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
+);
+console.log(stockfish);
 
 const root = document.createElement('div');
 document.body.appendChild(root);

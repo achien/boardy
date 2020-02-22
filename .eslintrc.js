@@ -25,9 +25,11 @@ module.exports = {
   plugins: ['react', '@typescript-eslint', 'react-hooks'],
   rules: {
     '@typescript-eslint/ban-ts-ignore': 'warn',
+    '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     'react-hooks/exhaustive-deps': 'warn',
     'react-hooks/rules-of-hooks': 'error',
+    'no-constant-condition': ['error', { checkLoops: false }],
   },
   settings: {
     react: {
