@@ -123,12 +123,19 @@ function App(): JSX.Element {
   );
 }
 
-const stockfish = new Engine(
-  'stockfish',
-  '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
-);
-console.log(stockfish);
+(async function(): Promise<void> {
+  const stockfish = new Engine(
+    'stockfish',
+    '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
+  );
+  await stockfish.start();
+  console.warn('Stockfish loaded');
+  console.log(stockfish.options);
+  await stockfish.ready();
+  await stockfish.ready();
+  await stockfish.ready();
 
-const root = document.createElement('div');
-document.body.appendChild(root);
-ReactDOM.render(<App />, root);
+  const root = document.createElement('div');
+  document.body.appendChild(root);
+  ReactDOM.render(<App />, root);
+})();

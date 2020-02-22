@@ -1,6 +1,8 @@
 import { spawn, ChildProcess } from 'child_process';
 import * as readline from 'readline';
 import * as assert from 'assert';
+import * as EventEmitter from 'events';
+import memoize from './memoize';
 
 enum State {
   Loading,
@@ -72,6 +74,7 @@ const StandardOptionTypes: Record<string, OptionType> = {
 
 export class Engine {
   readonly name: string;
+  readonly path: string;
 
   // Engine-provided info
   fullName: string | null = null;
@@ -80,21 +83,60 @@ export class Engine {
 
   // class internals
   private state: State;
-  private process: ChildProcess;
-  private readline: readline.Interface;
+  private stateEmitter: EventEmitter;
+  private process: ChildProcess | null = null;
+  private readline: readline.Interface | null = null;
 
   constructor(name: string, path: string) {
     this.name = name;
+    this.path = path;
+
+    this.options = {};
+
     this.state = State.Loading;
-    this.process = spawn(path);
+    this.stateEmitter = new EventEmitter();
+  }
+
+  // Naively waits for a state to happen.  Doesn't check if we're already in
+  // the state, or if the state is no longer reachable, or anything else.
+  async waitForState(state: State): Promise<void> {
+    return new Promise((resolve, _reject) => {
+      const listener = (newState: State): void => {
+        if (state === newState) {
+          this.stateEmitter.removeListener('change', listener);
+          resolve();
+        }
+      };
+      this.stateEmitter.on('change', listener);
+    });
+  }
+
+  // Starts the engine process then sends 'uci' and waits for 'uciok'.  At
+  // this point we know the engine identity and all options.
+  start = memoize(async () => {
+    this.process = spawn(this.path);
     this.readline = readline.createInterface(this.process.stdout!);
     this.readline.on('line', line => this.receive(line));
     this.readline.on('pause', () => {
       console.warn(`<${this.name}> input paused`);
     });
-    this.send('uci');
 
-    this.options = {};
+    this.send('uci');
+    await this.waitForState(State.UCI);
+  });
+
+  // Sends 'isready' and waits for 'readyok'.  At this point the engine is
+  // ready to be used.
+  ready = memoize(async () => {
+    this.send('isready');
+    await this.waitForState(State.Ready);
+  });
+
+  private setState(state: State): void {
+    if (state !== this.state) {
+      this.state = state;
+      this.stateEmitter.emit('change', state);
+    }
   }
 
   private receive(msg: string): void {
@@ -113,11 +155,8 @@ export class Engine {
             assert.fail(`Invalid id command without name or author: ${msg}`);
         }
       },
-      uciok: () => {
-        this.state = State.UCI;
-        this.send('isready');
-      },
-      readyok: () => (this.state = State.Ready),
+      uciok: () => this.setState(State.UCI),
+      readyok: () => this.setState(State.Ready),
       option: tokens => this.handleOption(tokens),
     };
 
@@ -260,6 +299,6 @@ export class Engine {
 
   private send(msg: string): void {
     console.log(`<Boardy> ${msg}`);
-    this.process.stdin!.write(msg + '\n');
+    this.process!.stdin!.write(msg + '\n');
   }
 }
