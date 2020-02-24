@@ -14,8 +14,8 @@ export class TimeControl {
   // All time is stored in milliseconds
   private white: number;
   private black: number;
-  private whiteIncrement: number;
-  private blackIncrement: number;
+  whiteIncrement: number;
+  blackIncrement: number;
   private turn: 'white' | 'black';
   private updateTime: number | null;
   private flagTimer: NodeJS.Timeout | null = null;

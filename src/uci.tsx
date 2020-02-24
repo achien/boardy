@@ -3,6 +3,8 @@ import * as readline from 'readline';
 import * as assert from 'assert';
 import * as EventEmitter from 'events';
 import memoize from './memoize';
+import { Position } from './Position';
+import { TimeControl } from './TimeControl';
 
 enum State {
   Loading,
@@ -75,6 +77,7 @@ const StandardOptionTypes: Record<string, OptionType> = {
 export class Engine {
   readonly name: string;
   readonly path: string;
+  readonly events: EventEmitter;
 
   // Engine-provided info
   fullName: string | null = null;
@@ -90,6 +93,7 @@ export class Engine {
   constructor(name: string, path: string) {
     this.name = name;
     this.path = path;
+    this.events = new EventEmitter();
 
     this.options = {};
 
@@ -137,10 +141,32 @@ export class Engine {
     return this;
   }
 
-  // position(): this {
-  //   const fen = chess.fen();
-  //   return this;
-  // }
+  position(position: Position): this {
+    const fen = position.initialFen || 'startpos';
+    const moves = position.chess.history({ verbose: true }).map(
+      // Convert into long algebraic notation for UCI
+      move => move.from + move.to + (move.promotion || ''),
+    );
+    let command = `position ${fen}`;
+    if (moves.length > 0) {
+      command += ` moves ${moves.join(' ')}`;
+    }
+    this.send(command);
+    return this;
+  }
+
+  // Plays the current position
+  play(clock: TimeControl): this {
+    let command = `go wtime ${clock.get('white')} btime ${clock.get('black')}`;
+    if (clock.whiteIncrement > 0) {
+      command += ` winc ${clock.whiteIncrement}`;
+    }
+    if (clock.blackIncrement > 0) {
+      command += ` binc ${clock.blackIncrement}`;
+    }
+    this.send(command);
+    return this;
+  }
 
   private setState(state: State): void {
     if (state !== this.state) {
@@ -152,7 +178,7 @@ export class Engine {
   private receive(msg: string): void {
     console.log(`<${this.name}> ${msg}`);
 
-    const handlers: Record<string, (tokens: string[]) => void> = {
+    const handlers: Record<string, ((tokens: string[]) => void) | null> = {
       id: tokens => {
         switch (tokens[0]) {
           case 'name':
@@ -168,6 +194,8 @@ export class Engine {
       uciok: () => this.setState(State.UCI),
       readyok: () => this.setState(State.Ready),
       option: tokens => this.handleOption(tokens),
+      info: null,
+      bestmove: tokens => this.events.emit('bestmove', tokens[0]),
     };
 
     const tokens = msg.split(/\s+/);
@@ -176,7 +204,10 @@ export class Engine {
     }
     for (const command in handlers) {
       if (tokens[0] === command) {
-        handlers[command](tokens.slice(1));
+        const handler = handlers[command];
+        if (handler !== null) {
+          handler(tokens.slice(1));
+        }
         return;
       }
     }

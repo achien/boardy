@@ -1,3 +1,5 @@
+import * as assert from 'assert';
+
 import Chess, { ChessInstance, ShortMove } from 'chess.js';
 
 export class Position {
@@ -23,8 +25,10 @@ export class Position {
   }
 
   move(move: string | ShortMove): Position {
-    const nextGame = this.clone();
-    nextGame.chess.move(move);
-    return nextGame;
+    const nextPosition = this.clone();
+    // UCI uses long algebraic which is "sloppy"
+    nextPosition.chess.move(move, { sloppy: true });
+    assert(nextPosition.chess.turn() !== this.chess.turn());
+    return nextPosition;
   }
 }
