@@ -171,8 +171,11 @@ export function Board(props: BoardProps): JSX.Element {
       </div>,
     );
   }
+  const style = {
+    height: width + 'px',
+  };
   return (
-    <div ref={ref} className={css.board}>
+    <div ref={ref} className={css.board} style={style}>
       {ranks}
     </div>
   );

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 
 import Chess, { ChessInstance, Move, ShortMove } from 'chess.js';
 
+import { Play } from './Play';
 import { StatefulInput } from './StatefulInput';
 import { Board } from './board/Board';
 
@@ -88,6 +89,8 @@ function App(): JSX.Element {
     },
     [game],
   );
+
+  return <Play />;
 
   return (
     <div className={css.app}>

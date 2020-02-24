@@ -1,0 +1,12 @@
+.play {
+  display: flex;
+  flex-direction: row;
+}
+
+.boardContainer {
+  flex: 1;
+}
+
+.rightPane {
+  width: 100px;
+}
