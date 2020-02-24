@@ -8,7 +8,7 @@ interface TimeOptions {
   turn?: 'white' | 'black';
 }
 
-export class TimeControl {
+export class Clock {
   events: EventEmitter;
 
   // All time is stored in milliseconds
@@ -31,24 +31,26 @@ export class TimeControl {
     this.events = new EventEmitter();
   }
 
-  isPaused(): boolean {
+  isStopped(): boolean {
     return this.updateTime === null;
   }
 
-  pause(): void {
+  stop(): void {
     this.update();
     this.updateTime = null;
-    this.events.emit('pause');
+    this.events.emit('change');
+    this.updateFlagTimer();
   }
 
-  unpause(): void {
+  start(): void {
     this.updateTime = Date.now();
-    this.events.emit('unpause');
+    this.events.emit('change');
+    this.updateFlagTimer();
   }
 
   press(): void {
-    if (this.isPaused()) {
-      this.unpause();
+    if (this.isStopped()) {
+      this.start();
     }
     this.update();
     if (this.turn === 'white') {
@@ -58,7 +60,8 @@ export class TimeControl {
       this.turn = 'white';
       this.black += this.blackIncrement;
     }
-    this.events.emit('press');
+    this.updateFlagTimer();
+    this.events.emit('change');
   }
 
   getTurn(): 'white' | 'black' {
@@ -88,7 +91,7 @@ export class TimeControl {
     if (this.flagTimer !== null) {
       clearTimeout(this.flagTimer);
     }
-    if (this.isPaused()) {
+    if (this.isStopped()) {
       return;
     }
     if (this.turn === 'white') {

@@ -1,11 +1,11 @@
 import * as React from 'react';
 
-import Chess, { Move } from 'chess.js';
+import { Move } from 'chess.js';
 
 import { Board } from './board/Board';
-import { Clock } from './Clock';
+import { ClockDisplay } from './ClockDisplay';
 import { Position } from './Position';
-import { TimeControl } from './TimeControl';
+import { Clock } from './Clock';
 
 import css from './Play.css';
 import { Engine } from './uci';
@@ -16,10 +16,12 @@ const STOCKFISH_PATH =
   '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern';
 
 export function Play(): JSX.Element {
-  const [engine, _] = React.useState(new Engine('stockfish', STOCKFISH_PATH));
+  const [engine, _setEngine] = React.useState(
+    new Engine('stockfish', STOCKFISH_PATH),
+  );
   const [position, setPosition] = React.useState(new Position());
-  const [time, _setTime] = React.useState(
-    new TimeControl({
+  const [clock, _setClock] = React.useState(
+    new Clock({
       white: TIME * 1000,
       black: TIME * 1000,
       whiteIncrement: INCREMENT * 1000,
@@ -41,19 +43,19 @@ export function Play(): JSX.Element {
       console.log('Move!', move);
       const newPosition = position.move(move);
       setPosition(position.move(move));
-      time.press();
+      clock.press();
       if (newPosition.chess.turn() === 'b') {
-        engine.position(newPosition).play(time);
+        engine.position(newPosition).play(clock);
       }
     },
-    [position, time, engine],
+    [position, clock, engine],
   );
   const moveListener = React.useCallback(
     (move: string): void => {
       setPosition(position.move(move));
-      time.press();
+      clock.press();
     },
-    [position, time],
+    [position, clock],
   );
 
   React.useEffect(() => {
@@ -69,8 +71,8 @@ export function Play(): JSX.Element {
         <Board chess={position.chess} onMove={onMove} />
       </div>
       <div className={css.rightPane}>
-        <Clock timeControl={time} color={'black'} />
-        <Clock timeControl={time} color={'white'} />
+        <ClockDisplay clock={clock} color={'black'} />
+        <ClockDisplay clock={clock} color={'white'} />
       </div>
     </div>
   );

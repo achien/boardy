@@ -4,7 +4,7 @@ import * as assert from 'assert';
 import * as EventEmitter from 'events';
 import memoize from './memoize';
 import { Position } from './Position';
-import { TimeControl } from './TimeControl';
+import { Clock } from './Clock';
 
 enum State {
   Loading,
@@ -156,7 +156,7 @@ export class Engine {
   }
 
   // Plays the current position
-  play(clock: TimeControl): this {
+  play(clock: Clock): this {
     let command = `go wtime ${clock.get('white')} btime ${clock.get('black')}`;
     if (clock.whiteIncrement > 0) {
       command += ` winc ${clock.whiteIncrement}`;

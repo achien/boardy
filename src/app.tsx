@@ -10,7 +10,6 @@ import { Position } from './Position';
 import { StatefulInput } from './StatefulInput';
 
 import css from './App.css';
-import { Engine } from './uci';
 
 import 'typeface-roboto';
 
@@ -101,16 +100,5 @@ function App(): JSX.Element {
 }
 
 (async function(): Promise<void> {
-  // const stockfish = new Engine(
-  //   'stockfish',
-  //   '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
-  // );
-  // await stockfish.start();
-  // console.warn('Stockfish loaded');
-  // console.log(stockfish.options);
-  // await stockfish.ready();
-  // await stockfish.ready();
-  // await stockfish.ready();
-
   ReactDOM.render(<App />, document.body);
 })();

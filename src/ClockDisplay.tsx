@@ -1,37 +1,29 @@
 import * as React from 'react';
 
-import { TimeControl } from './TimeControl';
+import { Clock } from './Clock';
 
-import css from './Clock.css';
+import css from './ClockDisplay.css';
 
 const MSEC_IN_SEC = 1000;
 const MSEC_IN_MIN = 60 * MSEC_IN_SEC;
 const MSEC_IN_HOUR = 60 * MSEC_IN_MIN;
 
-interface ClockProps {
-  timeControl: TimeControl;
+interface ClockDisplayProps {
+  clock: Clock;
   color: 'white' | 'black';
 }
 
-export function Clock(props: ClockProps): JSX.Element {
-  const { timeControl, color } = props;
+export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
+  const { clock, color } = props;
   const [_, forceUpdate] = React.useReducer(x => x + 1, 0);
-  const time = Math.max(0, timeControl.get(color));
+  const time = Math.max(0, clock.get(color));
 
   React.useEffect(() => {
-    timeControl.events
-      .on('pause', forceUpdate)
-      .on('unpause', forceUpdate)
-      .on('press', forceUpdate)
-      .on('flag', forceUpdate);
+    clock.events.on('change', forceUpdate).on('flag', forceUpdate);
     return (): void => {
-      timeControl.events
-        .off('pause', forceUpdate)
-        .off('unpause', forceUpdate)
-        .off('press', forceUpdate)
-        .off('flag', forceUpdate);
+      clock.events.off('change', forceUpdate).off('flag', forceUpdate);
     };
-  }, [timeControl]);
+  }, [clock]);
 
   // const nextUpdate = time % 1000;
   // setTimeout(forceUpdate, nextUpdate);
