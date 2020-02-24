@@ -56,7 +56,7 @@ export function Clock(props: ClockProps): JSX.Element {
 
   let hundredthsDisplay = null;
   if (time <= MSEC_IN_MIN) {
-    const hundredths = Math.round(milliseconds / 10);
+    const hundredths = Math.floor(milliseconds / 10);
     const hundredthsText =
       hundredths >= 10 ? hundredths.toString() : '0' + hundredths;
     hundredthsDisplay = <>.{hundredthsText}</>;

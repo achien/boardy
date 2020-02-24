@@ -34,7 +34,8 @@ function getMovesByTarget(
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
   const ref = React.useRef<HTMLDivElement>(null);
-  const [width, setWidth] = React.useState(0);
+  const [clientWidth, setClientWidth] = React.useState(0);
+  const [clientHeight, setClientHeight] = React.useState(0);
   const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
     null,
   );
@@ -46,9 +47,17 @@ export function Board(props: BoardProps): JSX.Element {
     null,
   );
   React.useEffect(() => {
-    if (ref.current != null) {
-      setWidth(ref.current.clientWidth);
-    }
+    const setDimensions = () => {
+      if (ref.current != null) {
+        setClientWidth(ref.current.clientWidth);
+        setClientHeight(ref.current.clientHeight);
+      }
+    };
+    setDimensions();
+    window.addEventListener('resize', setDimensions);
+    return (): void => {
+      window.removeEventListener('resize', setDimensions);
+    };
   }, [ref]);
 
   const makeMove = React.useCallback(
@@ -129,6 +138,7 @@ export function Board(props: BoardProps): JSX.Element {
     [hoveredSquare],
   );
 
+  const width = Math.min(clientHeight, clientWidth);
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
     const rankSquares = [];
@@ -172,11 +182,14 @@ export function Board(props: BoardProps): JSX.Element {
     );
   }
   const style = {
+    width: width + 'px',
     height: width + 'px',
   };
   return (
-    <div ref={ref} className={css.board} style={style}>
-      {ranks}
+    <div ref={ref} className={css.container}>
+      <div className={css.board} style={style}>
+        {ranks}
+      </div>
     </div>
   );
 }

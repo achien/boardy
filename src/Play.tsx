@@ -19,7 +19,6 @@ export function Play(): JSX.Element {
     }),
   );
   const [_turn, setTurn] = React.useState<'white' | 'black'>('white');
-
   const onMove = React.useCallback(
     (move: Move) => {
       chess.move(move);

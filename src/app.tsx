@@ -11,6 +11,8 @@ import { Board } from './board/Board';
 import css from './App.css';
 import { Engine } from './uci';
 
+import 'typeface-roboto';
+
 document.addEventListener('dragover', (e: DragEvent) => {
   // Prevent default so dropping is possible.
   // This also removes the animation snapping the piece back to the original
@@ -138,7 +140,5 @@ function App(): JSX.Element {
   await stockfish.ready();
   await stockfish.ready();
 
-  const root = document.createElement('div');
-  document.body.appendChild(root);
-  ReactDOM.render(<App />, root);
+  ReactDOM.render(<App />, document.body);
 })();
