@@ -2,11 +2,12 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import classNames from 'classnames';
 
-import Chess, { ChessInstance, Move, ShortMove } from 'chess.js';
+import { Move } from 'chess.js';
 
-import { Play } from './Play';
-import { StatefulInput } from './StatefulInput';
 import { Board } from './board/Board';
+import { Play } from './Play';
+import { Position } from './Position';
+import { StatefulInput } from './StatefulInput';
 
 import css from './App.css';
 import { Engine } from './uci';
@@ -20,76 +21,47 @@ document.addEventListener('dragover', (e: DragEvent) => {
   e.preventDefault();
 });
 
-class Game {
-  initialFen: string | null;
-  chess: ChessInstance;
-
-  constructor(initialFen: string | null = null) {
-    this.initialFen = initialFen;
-    if (initialFen != null) {
-      this.chess = new Chess(initialFen);
-    } else {
-      this.chess = new Chess();
-    }
-  }
-
-  clone(): Game {
-    const moves = this.chess.history();
-    const clone = new Game(this.initialFen);
-    for (const move of moves) {
-      clone.chess.move(move);
-    }
-    return clone;
-  }
-
-  move(move: string | ShortMove): Game {
-    const nextGame = this.clone();
-    nextGame.chess.move(move);
-    return nextGame;
-  }
-}
-
 function App(): JSX.Element {
-  const [game, setGame] = React.useState(new Game());
+  const [position, setPosition] = React.useState(new Position());
 
   const onMove = React.useCallback(
     (move: Move) => {
-      setGame(game.move(move));
+      setPosition(position.move(move));
     },
-    [game],
+    [position],
   );
 
   const onFenInput = React.useCallback(
     (fen: string) => {
-      if (fen === game.chess.fen()) {
-        // Don't refresh the game if user clicks in and out of the input
+      if (fen === position.chess.fen()) {
+        // Don't refresh the position if user clicks in and out of the input
         return;
       }
-      const valid = game.chess.validate_fen(fen);
+      const valid = position.chess.validate_fen(fen);
       if (!valid.valid) {
         console.warn(`Invalid fen (${valid.error_number}): ${valid.error}`);
         return;
       }
-      // Fen changed, let's update the game
-      setGame(new Game(fen));
+      // Fen changed, let's update the position
+      setPosition(new Position(fen));
     },
-    [game],
+    [position],
   );
   const onPgnInput = React.useCallback(
     (pgn: string) => {
-      if (pgn === game.chess.pgn()) {
-        // Don't refresh the game if the user clicks in and out of the input
+      if (pgn === position.chess.pgn()) {
+        // Don't refresh the position if the user clicks in and out of the input
         return;
       }
-      const newGame = new Game();
-      const valid = newGame.chess.load_pgn(pgn);
+      const newPosition = new Position();
+      const valid = newPosition.chess.load_pgn(pgn);
       if (!valid) {
         console.warn(`Invalid pgn: ${pgn}`);
         return;
       }
-      setGame(newGame);
+      setPosition(newPosition);
     },
-    [game],
+    [position],
   );
 
   return <Play />;
@@ -97,7 +69,7 @@ function App(): JSX.Element {
   return (
     <div className={css.app}>
       <div className={css.boardContainer}>
-        <Board chess={game.chess} onMove={onMove} />
+        <Board chess={position.chess} onMove={onMove} />
       </div>
       <div className={css.inputWrapper}>
         <div className={css.inputRow}>
@@ -105,7 +77,7 @@ function App(): JSX.Element {
             FEN:
           </label>
           <StatefulInput
-            value={game.chess.fen()}
+            value={position.chess.fen()}
             onValueInput={onFenInput}
             id="fen"
             className={classNames(css.input, css.fenInput)}
@@ -117,7 +89,7 @@ function App(): JSX.Element {
           </label>
           <StatefulInput
             type="textarea"
-            value={game.chess.pgn()}
+            value={position.chess.pgn()}
             onValueInput={onPgnInput}
             id="pgn"
             className={classNames(css.input, css.pgnInput)}

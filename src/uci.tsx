@@ -132,6 +132,16 @@ export class Engine {
     await this.waitForState(State.Ready);
   });
 
+  newGame(): this {
+    this.send('ucinewgame');
+    return this;
+  }
+
+  // position(): this {
+  //   const fen = chess.fen();
+  //   return this;
+  // }
+
   private setState(state: State): void {
     if (state !== this.state) {
       this.state = state;

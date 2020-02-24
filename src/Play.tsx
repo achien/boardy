@@ -4,12 +4,13 @@ import Chess, { Move } from 'chess.js';
 
 import { Board } from './board/Board';
 import { Clock } from './Clock';
+import { Position } from './Position';
 import { TimeControl } from './TimeControl';
 
 import css from './Play.css';
 
 export function Play(): JSX.Element {
-  const [chess, _setChess] = React.useState(new Chess());
+  const [position, setPosition] = React.useState(new Position());
   const [time, _setTime] = React.useState(
     new TimeControl({
       white: 15 * 1000,
@@ -18,22 +19,18 @@ export function Play(): JSX.Element {
       blackIncrement: 1000,
     }),
   );
-  const [_turn, setTurn] = React.useState<'white' | 'black'>('white');
   const onMove = React.useCallback(
     (move: Move) => {
-      chess.move(move);
+      setPosition(position.move(move));
       time.press();
-      // Force rerender by changing state (we only modify internal state of
-      // chess which is not checked by React)
-      setTurn(time.getTurn());
     },
-    [chess, time],
+    [position, time],
   );
 
   return (
     <div className={css.play}>
       <div className={css.boardContainer}>
-        <Board chess={chess} onMove={onMove} />
+        <Board chess={position.chess} onMove={onMove} />
       </div>
       <div className={css.rightPane}>
         <Clock timeControl={time} color={'black'} />
