@@ -1,3 +1,24 @@
+/*
+ * +--------------------+----------------+
+ * |     left pane      |   right pane   |
+ * |+------------------+|                |
+ * ||                  ||                |
+ * ||                  ||                |
+ * ||      board       ||                |
+ * ||                  ||                |
+ * ++------------------+|                |
+ * || bottom left pane ||                |
+ * ++------------------+|                |
+ * +--------------------+----------------+
+ *
+ * The way this combines with Play.tsx is pretty jank.  We measure .play,
+ * .bottomLeftPane, and .rightPane then resize .boardContainer.  Thus:
+ *   - .play and .leftPane cannot have padding.  They are parents of
+ *     .boardContainer and if they have padding the height of .boardContainer
+ *     cannot be calculated from their heights.
+ *   - .boardContainer can have padding and has to be box-sizing: border-box
+ */
+
 .play {
   display: flex;
   flex-direction: row;
@@ -9,22 +30,28 @@
 .leftPane {
   display: flex;
   flex-direction: column;
-  flex: 1;
+}
+
+.bottomLeftPane {
+  box-sizing: border-box;
+  padding: 0 10px 10px 10px;
 }
 
 .rightPane {
+  box-sizing: border-box;
   width: 200px;
+  padding: 10px 10px 10px 0;
 }
 
 .boardContainer {
-  flex: 1;
-  margin: 5px;
+  box-sizing: border-box;
+  padding: 10px;
 }
 
 .inputRow {
   display: flex;
   flex-direction: row;
-  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .inputLabel {

@@ -50,9 +50,10 @@ export function Board(props: BoardProps): JSX.Element {
   React.useEffect(() => {
     const setDimensions = (): void => {
       if (ref.current != null) {
-        setWidth(Math.min(ref.current.clientWidth, ref.current.clientHeight));
-        setOffsetLeft(ref.current.offsetLeft);
-        setOffsetTop(ref.current.offsetTop);
+        const rect = ref.current.getBoundingClientRect();
+        setWidth(Math.min(rect.width, rect.height));
+        setOffsetLeft(rect.left);
+        setOffsetTop(rect.top);
       }
     };
     setDimensions();
