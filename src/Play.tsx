@@ -19,12 +19,12 @@ const STOCKFISH_PATH =
 const CHESSEY_PATH = '/Users/andrewchien/code/chessey/build/chessey';
 
 export function Play(): JSX.Element {
-  // const [engine, _setEngine] = React.useState(
-  //   new Engine('stockfish', STOCKFISH_PATH),
-  // );
   const [engine, _setEngine] = React.useState(
-    new Engine('chessey', CHESSEY_PATH),
+    new Engine('stockfish', STOCKFISH_PATH),
   );
+  // const [engine, _setEngine] = React.useState(
+  //   new Engine('chessey', CHESSEY_PATH),
+  // );
   const [position, setPosition] = React.useState(new Position());
   const [clock, _setClock] = React.useState(
     new Clock({
@@ -42,8 +42,13 @@ export function Play(): JSX.Element {
       await engine.ready();
       engine.newGame();
     })();
-    return (): void => {
+    const cleanup = (): void => {
       engine.quit();
+    };
+    window.addEventListener('beforeUnload', cleanup);
+    return (): void => {
+      cleanup();
+      window.removeEventListener('beforeUnload', cleanup);
     };
   }, [engine]);
 
