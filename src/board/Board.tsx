@@ -34,8 +34,9 @@ function getMovesByTarget(
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
   const ref = React.useRef<HTMLDivElement>(null);
-  const [clientWidth, setClientWidth] = React.useState(0);
-  const [clientHeight, setClientHeight] = React.useState(0);
+  const [width, setWidth] = React.useState(0);
+  const [offsetLeft, setOffsetLeft] = React.useState(0);
+  const [offsetTop, setOffsetTop] = React.useState(0);
   const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
     null,
   );
@@ -47,10 +48,11 @@ export function Board(props: BoardProps): JSX.Element {
     null,
   );
   React.useEffect(() => {
-    const setDimensions = () => {
+    const setDimensions = (): void => {
       if (ref.current != null) {
-        setClientWidth(ref.current.clientWidth);
-        setClientHeight(ref.current.clientHeight);
+        setWidth(Math.min(ref.current.clientWidth, ref.current.clientHeight));
+        setOffsetLeft(ref.current.offsetLeft);
+        setOffsetTop(ref.current.offsetTop);
       }
     };
     setDimensions();
@@ -60,8 +62,38 @@ export function Board(props: BoardProps): JSX.Element {
     };
   }, [ref]);
 
+  // For some reason, DOM events on the squares are unstable.  There are a few
+  // pixels near the boundary where pointer events will alternate between
+  // the two squares, e.g. e3 and e4 when moving the mouse along that boundary.
+  // Instead, we calculate the square on our own from the event coordinates
+  // which are stable.
+  const computeSquare = React.useCallback(
+    (clientX: number, clientY: number): TSquare => {
+      // Not sure if this is a React bug or intentional, but clientX and
+      // clientY are offset and don't start at (0,0)
+      const x = clientX - offsetLeft;
+      const y = clientY - offsetTop;
+      const xIdx = Math.max(0, Math.min(7, Math.floor((8 * x) / width)));
+      const yIdx = Math.max(0, Math.min(7, Math.floor((8 * y) / width)));
+      const rank = 8 - yIdx;
+      const f = xIdx + 1;
+      const file = String.fromCharCode('a'.charCodeAt(0) + f - 1);
+      return (file + rank) as TSquare;
+    },
+    [width, offsetLeft, offsetTop],
+  );
+
+  const movesByTarget: Record<string, Move> =
+    selectedSquare === null ? {} : getMovesByTarget(chess, selectedSquare);
+
   const makeMove = React.useCallback(
-    (move: Move) => {
+    (square: TSquare) => {
+      if (square !== hoveredSquare) {
+        console.error(
+          `Moving piece ${square} instead of indicated ${hoveredSquare}`,
+        );
+      }
+      const move = movesByTarget[square];
       const onMove = props.onMove;
       if (onMove) {
         onMove(move);
@@ -69,14 +101,12 @@ export function Board(props: BoardProps): JSX.Element {
       setSelectedSquare(null);
       setHoveredSquare(null);
     },
-    [props.onMove],
+    [movesByTarget, props.onMove, hoveredSquare],
   );
 
-  const movesByTarget: Record<string, Move> =
-    selectedSquare === null ? {} : getMovesByTarget(chess, selectedSquare);
-
   const onPointerDown = React.useCallback(
-    (square: TSquare) => {
+    (e: React.PointerEvent) => {
+      const square = computeSquare(e.clientX, e.clientY);
       const piece = chess.get(square);
       if (square === selectedSquare) {
         // We want to toggle the square if it is currently select, but we
@@ -86,7 +116,7 @@ export function Board(props: BoardProps): JSX.Element {
         setDeselectingSquare(square);
       } else if (square in movesByTarget) {
         // Move the piece
-        makeMove(movesByTarget[square]);
+        makeMove(square);
       } else if (piece && piece.color === chess.turn()) {
         // Select any square with a piece owned by the current player
         setSelectedSquare(square);
@@ -96,10 +126,11 @@ export function Board(props: BoardProps): JSX.Element {
         setHoveredSquare(null);
       }
     },
-    [selectedSquare, movesByTarget, makeMove, chess],
+    [computeSquare, selectedSquare, movesByTarget, makeMove, chess],
   );
   const onPointerUp = React.useCallback(
-    (square: TSquare) => {
+    (e: React.PointerEvent) => {
+      const square = computeSquare(e.clientX, e.clientY);
       // Toggle square if it is currently selected.  Handle this separately
       // from onPointerDown if we want to drag the currently selected square
       // so we do not deselect it before dragging.
@@ -109,36 +140,40 @@ export function Board(props: BoardProps): JSX.Element {
       }
       setDeselectingSquare(null);
     },
-    [deselectingSquare],
+    [computeSquare, deselectingSquare],
   );
   const onDrop = React.useCallback(
-    (square: TSquare) => {
+    (e: React.DragEvent) => {
+      const square = computeSquare(e.clientX, e.clientY);
       if (square in movesByTarget) {
         // Move the piece
-        makeMove(movesByTarget[square]);
+        makeMove(square);
       }
     },
-    [movesByTarget, makeMove],
+    [computeSquare, movesByTarget, makeMove],
   );
 
-  const onHoverEnter = React.useCallback(
-    (square: TSquare) => {
+  const onHover = React.useCallback(
+    (clientX: number, clientY: number) => {
+      const square = computeSquare(clientX, clientY);
       if (square in movesByTarget) {
         setHoveredSquare(square);
-      }
-    },
-    [movesByTarget],
-  );
-  const onHoverLeave = React.useCallback(
-    (square: TSquare) => {
-      if (square === hoveredSquare) {
+      } else {
         setHoveredSquare(null);
       }
     },
-    [hoveredSquare],
+    [computeSquare, movesByTarget],
   );
+  const onDrag = React.useCallback(
+    (e: React.DragEvent) => onHover(e.clientX, e.clientY),
+    [onHover],
+  );
+  const onPointerMove = React.useCallback(
+    (e: React.PointerEvent) => onHover(e.clientX, e.clientY),
+    [onHover],
+  );
+  const onPointerLeave = React.useCallback(() => setHoveredSquare(null), []);
 
-  const width = Math.min(clientHeight, clientWidth);
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
     const rankSquares = [];
@@ -160,13 +195,6 @@ export function Board(props: BoardProps): JSX.Element {
           square={square}
           approxWidth={Math.floor(width / 8)}
           highlight={highlight}
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerEnter={onHoverEnter}
-          onPointerLeave={onHoverLeave}
-          onDragEnter={onHoverEnter}
-          onDragLeave={onHoverLeave}
-          onDrop={onDrop}
         />,
       );
     }
@@ -187,7 +215,16 @@ export function Board(props: BoardProps): JSX.Element {
   };
   return (
     <div ref={ref} className={css.container}>
-      <div className={css.board} style={style}>
+      <div
+        className={css.board}
+        style={style}
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        onPointerMove={onPointerMove}
+        onPointerLeave={onPointerLeave}
+        onDrag={onDrag}
+        onDrop={onDrop}
+      >
         {ranks}
       </div>
     </div>

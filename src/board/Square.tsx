@@ -55,13 +55,6 @@ interface SquareProps {
   // board width / 8.  Not exact since we use flexbox to syle.
   approxWidth: number;
   highlight: SquareHighlight;
-  onPointerDown: (square: TSquare) => void;
-  onPointerUp: (square: TSquare) => void;
-  onPointerEnter: (square: TSquare) => void;
-  onPointerLeave: (square: TSquare) => void;
-  onDragEnter: (square: TSquare) => void;
-  onDragLeave: (square: TSquare) => void;
-  onDrop: (square: TSquare) => void;
 }
 
 interface PieceProps {
@@ -114,41 +107,6 @@ function Piece(props: PieceProps): JSX.Element {
 
 export function Square(props: SquareProps): JSX.Element {
   const { chess, square } = props;
-
-  const onPointerDown = React.useCallback(() => {
-    const cb = props.onPointerDown;
-    cb(square);
-  }, [props.onPointerDown, square]);
-  const onPointerUp = React.useCallback(() => {
-    const cb = props.onPointerUp;
-    cb(square);
-  }, [props.onPointerUp, square]);
-  const onPointerEnter = React.useCallback(() => {
-    const cb = props.onPointerEnter;
-    cb(square);
-  }, [props.onPointerEnter, square]);
-  const onPointerLeave = React.useCallback(() => {
-    const cb = props.onPointerLeave;
-    cb(square);
-  }, [props.onPointerLeave, square]);
-
-  const onDragEnter = React.useCallback(() => {
-    const cb = props.onDragEnter;
-    cb(square);
-  }, [props.onDragEnter, square]);
-  const onDragLeave = React.useCallback(() => {
-    const cb = props.onDragLeave;
-    cb(square);
-  }, [props.onDragLeave, square]);
-  const onDragOver = React.useCallback((e: React.DragEvent) => {
-    // prevent default or else you cannot drop
-    e.preventDefault();
-  }, []);
-
-  const onDrop = React.useCallback(() => {
-    const cb = props.onDrop;
-    cb(square);
-  }, [props.onDrop, square]);
 
   let pieceElem = null;
   const piece = chess.get(square);
@@ -203,17 +161,7 @@ export function Square(props: SquareProps): JSX.Element {
     filter: filter,
   };
   return (
-    <div
-      className={css.square}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
-      onDragEnter={onDragEnter}
-      onDragLeave={onDragLeave}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-    >
+    <div className={css.square}>
       <div className={css.squareBackground} style={backgroudStyle} />
       {target}
       {pieceElem}
