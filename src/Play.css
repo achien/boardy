@@ -6,11 +6,37 @@
   overflow: hidden;
 }
 
+.leftPane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.rightPane {
+  width: 200px;
+}
+
 .boardContainer {
   flex: 1;
   margin: 5px;
 }
 
-.rightPane {
-  width: 200px;
+.inputRow {
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
+}
+
+.inputLabel {
+  width: 50px;
+  margin-right: 5px;
+}
+
+.input {
+  flex: 1;
+  font-size: 14px;
+}
+
+.fenInput {
+  text-align: center;
 }

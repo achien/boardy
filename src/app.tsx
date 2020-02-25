@@ -100,5 +100,8 @@ function App(): JSX.Element {
 }
 
 (async function(): Promise<void> {
-  ReactDOM.render(<App />, document.body);
+  const root = document.createElement('div');
+  root.className = css.reactRoot;
+  document.body.appendChild(root);
+  ReactDOM.render(<App />, root);
 })();

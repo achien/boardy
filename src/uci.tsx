@@ -142,12 +142,16 @@ export class Engine {
   }
 
   position(position: Position): this {
-    const fen = position.initialFen || 'startpos';
+    let command = 'position';
+    if (position.initialFen !== null) {
+      command += ` fen ${position.initialFen}`;
+    } else {
+      command += ' startpos';
+    }
     const moves = position.chess.history({ verbose: true }).map(
       // Convert into long algebraic notation for UCI
       move => move.from + move.to + (move.promotion || ''),
     );
-    let command = `position ${fen}`;
     if (moves.length > 0) {
       command += ` moves ${moves.join(' ')}`;
     }
@@ -165,6 +169,11 @@ export class Engine {
       command += ` binc ${clock.blackIncrement}`;
     }
     this.send(command);
+    return this;
+  }
+
+  quit(): this {
+    this.send('quit');
     return this;
   }
 
