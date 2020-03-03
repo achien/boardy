@@ -101,12 +101,12 @@ export function Play(): JSX.Element {
   //
   // +--------------------+----------------+
   // |     left pane      |   right pane   |
-  // |+------------------+|                |
-  // ||                  ||                |
-  // ||                  ||                |
-  // ||      board       ||                |
-  // ||                  ||                |
-  // ++------------------+|                |
+  // |+------------------+|+--------------+|
+  // ||                  |||              ||
+  // ||                  |||    board     ||
+  // ||      board       |||    right     ||
+  // ||                  |||              ||
+  // ++------------------+|+---------------|
   // || bottom left pane ||                |
   // ++------------------+|                |
   // +--------------------+----------------+
@@ -157,6 +157,9 @@ export function Play(): JSX.Element {
     width: boardWidth + 'px',
     height: boardWidth + 'px',
   };
+  const boardRightContainerStyle = {
+    height: boardWidth + 'px',
+  };
 
   return (
     <div ref={playRef} className={css.play}>
@@ -183,8 +186,16 @@ export function Play(): JSX.Element {
         </div>
       </div>
       <div ref={setRightPaneRef} className={css.rightPane}>
-        <ClockDisplay clock={clock} color={'black'} />
-        <ClockDisplay clock={clock} color={'white'} />
+        <div
+          className={css.boardRightContainer}
+          style={boardRightContainerStyle}
+        >
+          <div className={css.boardRightContainerPadding} />
+          <ClockDisplay clock={clock} color={'black'} />
+          <div className={css.pgn}>{position.chess.pgn()}</div>
+          <ClockDisplay clock={clock} color={'white'} />
+          <div className={css.boardRightContainerPadding} />
+        </div>
       </div>
     </div>
   );

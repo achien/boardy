@@ -25,7 +25,7 @@ export class Clock {
     this.black = options.black;
     this.whiteIncrement = options.whiteIncrement || 0;
     this.blackIncrement = options.blackIncrement || 0;
-    this.turn = options.turn || 'white';
+    this.turn = options.turn || 'black';
     this.updateTime = null;
 
     this.events = new EventEmitter();
@@ -51,6 +51,7 @@ export class Clock {
   press(): void {
     if (this.isStopped()) {
       this.start();
+      return;
     }
     this.update();
     if (this.turn === 'white') {
