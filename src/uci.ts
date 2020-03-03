@@ -125,6 +125,10 @@ export class Engine {
       console.warn(`<${this.name}> input paused`);
     });
 
+    readline
+      .createInterface(this.process.stderr!)
+      .on('line', line => console.error(`<${this.name}> ` + line));
+
     this.send('uci');
     await this.waitForState(State.UCI);
   });

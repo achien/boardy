@@ -17,6 +17,7 @@ const INCREMENT = 1;
 const STOCKFISH_PATH =
   '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern';
 const CHESSEY_PATH = '/Users/andrewchien/code/chessey/build/chessey';
+const CHESSIER_PATH = '/Users/andrewchien/code/chessier/target/debug/chessier';
 
 export function Play(): JSX.Element {
   const [position, setPosition] = React.useState(new Position());
@@ -31,11 +32,8 @@ export function Play(): JSX.Element {
 
   // Setup the engine
   const [engine, _setEngine] = React.useState(
-    new Engine('stockfish', STOCKFISH_PATH),
+    new Engine('chessier', CHESSIER_PATH),
   );
-  // const [engine, _setEngine] = React.useState(
-  //   new Engine('chessey', CHESSEY_PATH),
-  // );
   React.useEffect(() => {
     (async (): Promise<void> => {
       await engine.start();
@@ -45,10 +43,10 @@ export function Play(): JSX.Element {
     const cleanup = (): void => {
       engine.quit();
     };
-    window.addEventListener('beforeUnload', cleanup);
+    window.addEventListener('beforeunload', cleanup);
     return (): void => {
       cleanup();
-      window.removeEventListener('beforeUnload', cleanup);
+      window.removeEventListener('beforeunload', cleanup);
     };
   }, [engine]);
 
