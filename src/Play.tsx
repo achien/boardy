@@ -113,41 +113,40 @@ export function Play(): JSX.Element {
   //
   // Board is square.  We maximize board area assuming right pane has a fixed
   // width and bottom left pane has a fixed height.
-  const playRef = React.useRef<HTMLDivElement>();
+  const playRef = React.useRef<HTMLDivElement>(null);
   const boardContainerRef = React.useRef<HTMLDivElement>(null);
-  const bottomLeftPaneRef = React.useRef<HTMLDivElement>(null);
-  const rightPaneRef = React.useRef<HTMLDivElement>(null);
   const [boardWidth, setBoardWidth] = React.useState(0);
+  const [rightPaneWidth, setRightPaneWidth] = React.useState(0);
+  const [bottomLeftPaneHeight, setBottomLeftPaneHeight] = React.useState(0);
+
+  const setBottomLeftPaneRef = React.useCallback((node: HTMLDivElement) => {
+    if (node != null) {
+      setBottomLeftPaneHeight(node.getBoundingClientRect().height);
+    }
+  }, []);
+  const setRightPaneRef = React.useCallback((node: HTMLDivElement) => {
+    if (node != null) {
+      setRightPaneWidth(node.getBoundingClientRect().width);
+    }
+  }, []);
   const setDimensions = React.useCallback((): void => {
     if (
       playRef.current == null ||
       boardContainerRef.current == null ||
-      bottomLeftPaneRef.current == null ||
-      rightPaneRef.current == null
+      rightPaneWidth === 0 ||
+      bottomLeftPaneHeight === 0
     ) {
       return;
     }
     const playRect = playRef.current.getBoundingClientRect();
-    const bottomLeftRect = bottomLeftPaneRef.current.getBoundingClientRect();
-    const rightRect = rightPaneRef.current.getBoundingClientRect();
-    const boardWidth = Math.min(
-      playRect.width - rightRect.width,
-      playRect.height - bottomLeftRect.height,
+    const newWidth = Math.min(
+      playRect.width - rightPaneWidth,
+      playRect.height - bottomLeftPaneHeight,
     );
-    boardContainerRef.current.style.width = boardWidth + 'px';
-    boardContainerRef.current.style.height = boardWidth + 'px';
-    setBoardWidth(boardWidth);
-  }, [playRef, boardContainerRef, bottomLeftPaneRef, rightPaneRef]);
-  // We need this in addition to useEffect below because refs are set after
-  // rendering, and we want to resize after the first render.
-  const setPlayRef = React.useCallback(
-    (playNode: HTMLDivElement) => {
-      playRef.current = playNode;
-      setDimensions();
-    },
-    [playRef, setDimensions],
-  );
+    setBoardWidth(newWidth);
+  }, [playRef, boardContainerRef, rightPaneWidth, bottomLeftPaneHeight]);
   React.useEffect(() => {
+    setDimensions();
     window.addEventListener('resize', setDimensions);
     return (): void => {
       window.removeEventListener('resize', setDimensions);
@@ -160,7 +159,7 @@ export function Play(): JSX.Element {
   };
 
   return (
-    <div ref={setPlayRef} className={css.play}>
+    <div ref={playRef} className={css.play}>
       <div className={css.leftPane}>
         <div
           ref={boardContainerRef}
@@ -169,7 +168,7 @@ export function Play(): JSX.Element {
         >
           <Board chess={position.chess} onMove={onMove} />
         </div>
-        <div ref={bottomLeftPaneRef} className={css.bottomLeftPane}>
+        <div ref={setBottomLeftPaneRef} className={css.bottomLeftPane}>
           <div className={css.inputRow}>
             <label className={css.inputLabel} htmlFor="fen">
               FEN:
@@ -183,7 +182,7 @@ export function Play(): JSX.Element {
           </div>
         </div>
       </div>
-      <div ref={rightPaneRef} className={css.rightPane}>
+      <div ref={setRightPaneRef} className={css.rightPane}>
         <ClockDisplay clock={clock} color={'black'} />
         <ClockDisplay clock={clock} color={'white'} />
       </div>

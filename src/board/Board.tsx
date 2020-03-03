@@ -33,7 +33,7 @@ function getMovesByTarget(
 
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
-  const ref = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const [width, setWidth] = React.useState(0);
   const [offsetLeft, setOffsetLeft] = React.useState(0);
   const [offsetTop, setOffsetTop] = React.useState(0);
@@ -47,21 +47,25 @@ export function Board(props: BoardProps): JSX.Element {
   const [hoveredSquare, setHoveredSquare] = React.useState<TSquare | null>(
     null,
   );
+
+  const setDimensions = React.useCallback((): void => {
+    if (containerRef.current != null) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setWidth(Math.min(rect.width, rect.height));
+      setOffsetLeft(rect.left);
+      setOffsetTop(rect.top);
+    }
+  }, [containerRef]);
+  // Update dimensions whenver the component is updated
+  React.useEffect(() => setDimensions());
+  // Register setDimensions on window resize because the component size
+  // might change
   React.useEffect(() => {
-    const setDimensions = (): void => {
-      if (ref.current != null) {
-        const rect = ref.current.getBoundingClientRect();
-        setWidth(Math.min(rect.width, rect.height));
-        setOffsetLeft(rect.left);
-        setOffsetTop(rect.top);
-      }
-    };
-    setDimensions();
     window.addEventListener('resize', setDimensions);
     return (): void => {
       window.removeEventListener('resize', setDimensions);
     };
-  }, [ref]);
+  }, [setDimensions]);
 
   // For some reason, DOM events on the squares are unstable.  There are a few
   // pixels near the boundary where pointer events will alternate between
@@ -215,7 +219,7 @@ export function Board(props: BoardProps): JSX.Element {
     height: width + 'px',
   };
   return (
-    <div ref={ref} className={css.container}>
+    <div ref={containerRef} className={css.container}>
       <div
         className={css.board}
         style={style}
