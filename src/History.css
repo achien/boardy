@@ -1,0 +1,40 @@
+.container {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.moveNumber {
+  width: 3.5ch;
+  text-align: right;
+  padding-right: 1ch;
+  font-variant: tabular-nums;
+}
+
+.move {
+  width: 50%;
+}
+
+.bottom {
+  text-align: center;
+}
+
+.resultContainer {
+  margin: 5px 0;
+  padding: 10px 0;
+  background-color: #d0d0d0;
+}
+
+.result {
+  font-weight: bold;
+  font-size: 20px;
+  padding-bottom: 2px;
+}
+
+.resultReason {
+  font-size: 13px;
+}

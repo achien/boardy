@@ -9,6 +9,7 @@ import { ClockDisplay } from './ClockDisplay';
 import { Engine } from './uci';
 import { Position } from './Position';
 import { StatefulInput } from './StatefulInput';
+import { History } from './History';
 
 import css from './Play.css';
 
@@ -52,6 +53,7 @@ export function Play(): JSX.Element {
 
   const onFenInput = React.useCallback(
     (fen: string) => {
+      fen = fen.trim();
       if (fen === position.chess.fen()) {
         // Don't refresh the position if user clicks in and out of the input
         return;
@@ -190,11 +192,11 @@ export function Play(): JSX.Element {
           className={css.boardRightContainer}
           style={boardRightContainerStyle}
         >
-          <div className={css.boardRightContainerPadding} />
           <ClockDisplay clock={clock} color={'black'} />
-          <div className={css.pgn}>{position.chess.pgn()}</div>
+          <div className={css.pgn}>
+            <History position={position} />
+          </div>
           <ClockDisplay clock={clock} color={'white'} />
-          <div className={css.boardRightContainerPadding} />
         </div>
       </div>
     </div>

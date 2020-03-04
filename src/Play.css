@@ -44,19 +44,16 @@
 }
 
 .boardRightContainer {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  justify-content: center;
   padding: 10px 0;
 }
 
-.boardRightContainerPadding {
-  flex: 1;
-}
-
 .pgn {
-  height: 300px;
-  padding: 10px 5px;
+  margin: 15px 0;
+  height: 250px;
 }
 
 .boardContainer {

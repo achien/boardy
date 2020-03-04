@@ -3,16 +3,20 @@ import * as assert from 'assert';
 import Chess, { ChessInstance, ShortMove } from 'chess.js';
 
 export class Position {
-  initialFen: string | null;
+  initialFen: string;
   chess: ChessInstance;
 
-  constructor(initialFen: string | null = null) {
-    this.initialFen = initialFen;
+  constructor(initialFen: string | undefined = undefined) {
     if (initialFen != null) {
       this.chess = new Chess(initialFen);
     } else {
       this.chess = new Chess();
     }
+    this.initialFen = this.chess.fen();
+  }
+
+  initialMoveNumber(): number {
+    return parseInt(this.initialFen.split(/\s+/)[5], 10);
   }
 
   clone(): Position {
