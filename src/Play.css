@@ -51,12 +51,13 @@
   padding: 10px 0;
 }
 
+.divider {
+  margin: 10px 0;
+  border-top: 1px solid #d0d0d0;
+}
+
 .pgn {
   height: 250px;
-  margin: 10px 0;
-  padding: 5px 0;
-  border-top: 1px solid #d0d0d0;
-  border-bottom: 1px solid #d0d0d0;
 }
 
 .boardContainer {

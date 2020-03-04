@@ -3,7 +3,9 @@ import * as React from 'react';
 interface StatefulInputProps extends React.HTMLAttributes<HTMLElement> {
   type?: 'text' | 'textarea';
   value: string;
-  onValueInput: (value: string) => void;
+  // Explicit is when user hits enter
+  // Implicit is when user blurs
+  onValueInput: (value: string, type: 'explicit' | 'implicit') => void;
 }
 
 export function StatefulInput(props: StatefulInputProps): JSX.Element {
@@ -19,21 +21,17 @@ export function StatefulInput(props: StatefulInputProps): JSX.Element {
   const onFocus = React.useCallback(() => setFocused(true), []);
   const onBlur = React.useCallback(() => {
     setFocused(false);
-    onValueInput(inputValue);
+    onValueInput(inputValue, 'implicit');
   }, [onValueInput, inputValue]);
   const onKeyDown = React.useCallback(
     (e: React.KeyboardEvent) => {
       // "Enter" submits
       if (e.keyCode === 13) {
-        onValueInput(inputValue);
+        onValueInput(inputValue, 'explicit');
       }
     },
     [onValueInput, inputValue],
   );
-  const onSubmit = React.useCallback(() => onValueInput(inputValue), [
-    onValueInput,
-    inputValue,
-  ]);
 
   // Update input value with new value if the component is not focused
   const prevValueRef = React.useRef(value);
@@ -55,7 +53,6 @@ export function StatefulInput(props: StatefulInputProps): JSX.Element {
         onChange={onChange}
         onFocus={onFocus}
         onBlur={onBlur}
-        onSubmit={onSubmit}
         onKeyDown={onKeyDown}
         {...otherProps}
       />
@@ -67,7 +64,6 @@ export function StatefulInput(props: StatefulInputProps): JSX.Element {
         onChange={onChange}
         onFocus={onFocus}
         onBlur={onBlur}
-        onSubmit={onSubmit}
         onKeyDown={onKeyDown}
         {...otherProps}
       />

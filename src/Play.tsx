@@ -20,16 +20,18 @@ const STOCKFISH_PATH =
 const CHESSEY_PATH = '/Users/andrewchien/code/chessey/build/chessey';
 const CHESSIER_PATH = '/Users/andrewchien/code/chessier/target/debug/chessier';
 
+function newClock(): Clock {
+  return new Clock({
+    white: TIME * 1000,
+    black: TIME * 1000,
+    whiteIncrement: INCREMENT * 1000,
+    blackIncrement: INCREMENT * 1000,
+  });
+}
+
 export function Play(): JSX.Element {
   const [position, setPosition] = React.useState(new Position());
-  const [clock, _setClock] = React.useState(
-    new Clock({
-      white: TIME * 1000,
-      black: TIME * 1000,
-      whiteIncrement: INCREMENT * 1000,
-      blackIncrement: INCREMENT * 1000,
-    }),
-  );
+  const [clock, setClock] = React.useState(newClock());
 
   // Setup the engine
   const [engine, _setEngine] = React.useState(
@@ -52,9 +54,9 @@ export function Play(): JSX.Element {
   }, [engine]);
 
   const onFenInput = React.useCallback(
-    (fen: string) => {
+    (fen: string, type: 'explicit' | 'implicit') => {
       fen = fen.trim();
-      if (fen === position.chess.fen()) {
+      if (type === 'implicit' && fen === position.chess.fen()) {
         // Don't refresh the position if user clicks in and out of the input
         return;
       }
@@ -65,6 +67,7 @@ export function Play(): JSX.Element {
       }
       // Fen changed, let's update the position
       setPosition(new Position(fen));
+      setClock(newClock());
       engine.newGame();
     },
     [position, engine],
@@ -210,9 +213,11 @@ export function Play(): JSX.Element {
           style={boardRightContainerStyle}
         >
           <ClockDisplay clock={clock} color={'black'} />
+          <div className={css.divider} />
           <div className={css.pgn}>
             <History position={position} />
           </div>
+          <div className={css.divider} />
           <ClockDisplay clock={clock} color={'white'} />
         </div>
       </div>
