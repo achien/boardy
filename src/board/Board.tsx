@@ -31,22 +31,12 @@ function getMovesByTarget(
   return movesByTarget;
 }
 
-export function Board(props: BoardProps): JSX.Element {
-  const { chess } = props;
-  const containerRef = React.useRef<HTMLDivElement>(null);
+function useBoardDimensions(
+  containerRef: React.RefObject<HTMLDivElement>,
+): [number, number, number] {
   const [width, setWidth] = React.useState(0);
   const [offsetLeft, setOffsetLeft] = React.useState(0);
   const [offsetTop, setOffsetTop] = React.useState(0);
-  const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
-    null,
-  );
-  const [
-    deselectingSquare,
-    setDeselectingSquare,
-  ] = React.useState<TSquare | null>(null);
-  const [hoveredSquare, setHoveredSquare] = React.useState<TSquare | null>(
-    null,
-  );
 
   const setDimensions = React.useCallback((): void => {
     if (containerRef.current != null) {
@@ -66,6 +56,24 @@ export function Board(props: BoardProps): JSX.Element {
       window.removeEventListener('resize', setDimensions);
     };
   }, [setDimensions]);
+
+  return [width, offsetLeft, offsetTop];
+}
+
+export function Board(props: BoardProps): JSX.Element {
+  const { chess } = props;
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [width, offsetLeft, offsetTop] = useBoardDimensions(containerRef);
+  const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
+    null,
+  );
+  const [
+    deselectingSquare,
+    setDeselectingSquare,
+  ] = React.useState<TSquare | null>(null);
+  const [hoveredSquare, setHoveredSquare] = React.useState<TSquare | null>(
+    null,
+  );
 
   // For some reason, DOM events on the squares are unstable.  There are a few
   // pixels near the boundary where pointer events will alternate between
