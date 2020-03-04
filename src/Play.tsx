@@ -71,10 +71,26 @@ export function Play(): JSX.Element {
   );
 
   React.useEffect(() => {
+    if (position.isGameOver()) {
+      clock.stop();
+      return;
+    }
     if (position.chess.turn() === 'b') {
       engine.position(position).play(clock);
     }
   }, [position, engine, clock]);
+  const setFlag = React.useCallback(
+    (color: 'black' | 'white') => {
+      setPosition(position.flag(color));
+    },
+    [position],
+  );
+  React.useEffect(() => {
+    clock.events.on('flag', setFlag);
+    return (): void => {
+      clock.events.off('flag', setFlag);
+    };
+  }, [clock, setFlag]);
 
   const onMove = React.useCallback(
     (move: Move) => {
@@ -163,6 +179,7 @@ export function Play(): JSX.Element {
     height: boardWidth + 'px',
   };
 
+  const canMove = !position.isGameOver() && position.chess.turn() == 'w';
   return (
     <div ref={playRef} className={css.play}>
       <div className={css.leftPane}>
@@ -171,7 +188,7 @@ export function Play(): JSX.Element {
           className={css.boardContainer}
           style={boardContainerStyle}
         >
-          <Board chess={position.chess} onMove={onMove} />
+          <Board chess={position.chess} canMove={canMove} onMove={onMove} />
         </div>
         <div ref={setBottomLeftPaneRef} className={css.bottomLeftPane}>
           <div className={css.inputRow}>

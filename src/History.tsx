@@ -35,15 +35,16 @@ interface HistoryProps {
 }
 
 export function History(props: HistoryProps): JSX.Element {
+  const { position } = props;
   const bottomRef = React.useRef<HTMLDivElement>(null);
-  const movePairs = historyAsPairs(props.position);
+  const movePairs = historyAsPairs(position);
 
   // After appending new moves scroll thet game into view
   React.useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView();
     }
-  }, [bottomRef, props.position]);
+  }, [bottomRef, position]);
 
   const rows = movePairs.map(movePair => {
     const { moveNumber, whiteMove, blackMove } = movePair;
@@ -56,34 +57,25 @@ export function History(props: HistoryProps): JSX.Element {
     );
   });
 
-  const chess = props.position.chess;
-  let resultReason = null;
-  let result = null;
-  if (chess.in_checkmate()) {
-    result = chess.turn() == 'w' ? '0-1' : '1-0';
-    resultReason = 'Checkmate';
-  } else if (chess.in_stalemate()) {
-    result = '½-½';
-    resultReason = 'Stalemate';
-  } else if (chess.insufficient_material()) {
-    result = '½-½';
-    resultReason = 'Insufficient Material';
-  } else if (chess.in_threefold_repetition()) {
-    result = '½-½';
-    resultReason = 'Threefold Repetition';
-  } else if (chess.in_draw()) {
-    result = '½-½';
-    resultReason = 'Draw';
-  } else if (chess.game_over()) {
-    result = '?-?';
-    resultReason = 'Game Over';
-  }
   let bottom = null;
-  if (result !== null) {
+  if (position.isGameOver()) {
+    const gameResult = position.gameResult!;
+    let result;
+    switch (gameResult.winner) {
+      case 'white':
+        result = '1-0';
+        break;
+      case 'black':
+        result = '0-1';
+        break;
+      case 'draw':
+        result = '½-½';
+        break;
+    }
     bottom = (
       <div className={css.resultContainer}>
         <div className={css.result}>{result}</div>
-        <div className={css.resultReason}>{resultReason}</div>
+        <div className={css.resultReason}>{gameResult.reason}</div>
       </div>
     );
   }

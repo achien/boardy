@@ -7,6 +7,7 @@ import css from './Board.css';
 
 interface BoardProps {
   chess: ChessInstance;
+  canMove?: boolean;
   onMove?: (move: Move) => void;
 }
 
@@ -62,6 +63,7 @@ function useBoardDimensions(
 
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
+  const canMove = props.canMove ?? false;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [width, offsetLeft, offsetTop] = useBoardDimensions(containerRef);
   const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
@@ -119,6 +121,9 @@ export function Board(props: BoardProps): JSX.Element {
 
   const onPointerDown = React.useCallback(
     (e: React.PointerEvent) => {
+      if (!canMove) {
+        return;
+      }
       const square = computeSquare(e.clientX, e.clientY);
       const piece = chess.get(square);
       if (square === selectedSquare) {
@@ -139,10 +144,13 @@ export function Board(props: BoardProps): JSX.Element {
         setHoveredSquare(null);
       }
     },
-    [computeSquare, selectedSquare, movesByTarget, makeMove, chess],
+    [canMove, computeSquare, selectedSquare, movesByTarget, makeMove, chess],
   );
   const onPointerUp = React.useCallback(
     (e: React.PointerEvent) => {
+      if (!canMove) {
+        return;
+      }
       const square = computeSquare(e.clientX, e.clientY);
       // Toggle square if it is currently selected.  Handle this separately
       // from onPointerDown if we want to drag the currently selected square
@@ -153,21 +161,27 @@ export function Board(props: BoardProps): JSX.Element {
       }
       setDeselectingSquare(null);
     },
-    [computeSquare, deselectingSquare],
+    [canMove, computeSquare, deselectingSquare],
   );
   const onDrop = React.useCallback(
     (e: React.DragEvent) => {
+      if (!canMove) {
+        return;
+      }
       const square = computeSquare(e.clientX, e.clientY);
       if (square in movesByTarget) {
         // Move the piece
         makeMove(square);
       }
     },
-    [computeSquare, movesByTarget, makeMove],
+    [canMove, computeSquare, movesByTarget, makeMove],
   );
 
   const onHover = React.useCallback(
     (clientX: number, clientY: number) => {
+      if (!canMove) {
+        return;
+      }
       const square = computeSquare(clientX, clientY);
       if (square in movesByTarget) {
         setHoveredSquare(square);
@@ -175,7 +189,7 @@ export function Board(props: BoardProps): JSX.Element {
         setHoveredSquare(null);
       }
     },
-    [computeSquare, movesByTarget],
+    [canMove, computeSquare, movesByTarget],
   );
   const onDrag = React.useCallback(
     (e: React.DragEvent) => onHover(e.clientX, e.clientY),
