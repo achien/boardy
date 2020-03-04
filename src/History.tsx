@@ -51,7 +51,7 @@ export function History(props: HistoryProps): JSX.Element {
     return (
       <tr key={moveNumber}>
         <td className={css.moveNumber}>{moveNumber}.</td>
-        <td className={css.move}>{whiteMove ?? '..'}</td>
+        <td className={css.move}>{whiteMove ?? '…'}</td>
         <td className={css.move}>{blackMove}</td>
       </tr>
     );
