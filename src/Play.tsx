@@ -174,7 +174,7 @@ export function Play(): JSX.Element {
         <div ref={setBottomLeftPaneRef} className={css.bottomLeftPane}>
           <div className={css.inputRow}>
             <label className={css.inputLabel} htmlFor="fen">
-              FEN:
+              FEN
             </label>
             <StatefulInput
               value={position.chess.fen()}

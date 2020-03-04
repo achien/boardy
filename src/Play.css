@@ -25,7 +25,6 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: 'Roboto';
 }
 
 .leftPane {
@@ -40,7 +39,7 @@
 
 .rightPane {
   box-sizing: border-box;
-  width: 200px;
+  width: 250px;
   padding: 0 10px 10px 0;
 }
 
@@ -69,16 +68,17 @@
   display: flex;
   flex-direction: row;
   margin-bottom: 5px;
+  line-height: 30px;
 }
 
 .inputLabel {
-  width: 50px;
-  margin-right: 5px;
+  margin-right: 10px;
+  font-weight: 500;
 }
 
 .input {
   flex: 1;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .fenInput {

@@ -46,17 +46,20 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
   const secondText = seconds >= 10 ? seconds.toString() : '0' + seconds;
   const secondDisplay = <>{secondText}</>;
 
-  let hundredthsDisplay = null;
-  if (time < MSEC_IN_MIN) {
+  let subsecondDisplay = null;
+  if (time < 10 * MSEC_IN_SEC) {
     const hundredths = Math.floor(milliseconds / 10);
     const hundredthsText =
       hundredths >= 10 ? hundredths.toString() : '0' + hundredths;
-    hundredthsDisplay = <>.{hundredthsText}</>;
+    subsecondDisplay = <>.{hundredthsText}</>;
+  } else if (time < MSEC_IN_MIN) {
+    const tenths = Math.floor(milliseconds / 100);
+    subsecondDisplay = <>.{tenths}</>;
   }
 
   let flag = null;
   if (time === 0) {
-    flag = String.fromCodePoint(0x1f6a9);
+    flag = ' ' + String.fromCodePoint(0x1f6a9);
   }
 
   return (
@@ -64,7 +67,7 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
       {hourDisplay}
       {minuteDisplay}
       {secondDisplay}
-      {hundredthsDisplay}
+      {subsecondDisplay}
       {flag}
     </div>
   );
