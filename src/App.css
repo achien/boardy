@@ -12,38 +12,3 @@ body {
 .reactRoot {
   height: 100%;
 }
-
-.app {
-  width: 600px;
-  text-align: center;
-}
-
-.boardContainer {
-  width: 600px;
-  height: 600px;
-}
-
-.inputRow {
-  display: flex;
-  flex-direction: row;
-  margin-top: 5px;
-}
-
-.inputLabel {
-  width: 50px;
-  margin-right: 5px;
-}
-
-.input {
-  flex: 1;
-  font-size: 14px;
-}
-
-.fenInput {
-  text-align: center;
-}
-
-.pgnInput {
-  padding: 3px 5px;
-  height: 100px;
-}
