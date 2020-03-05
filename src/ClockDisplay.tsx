@@ -1,4 +1,5 @@
 import * as React from 'react';
+import classNames from 'classnames';
 
 import { Clock } from './Clock';
 
@@ -25,8 +26,6 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
     };
   }, [clock]);
 
-  // const nextUpdate = time % 1000;
-  // setTimeout(forceUpdate, nextUpdate);
   requestAnimationFrame(forceUpdate);
 
   const hours = Math.floor(time / MSEC_IN_HOUR);
@@ -57,18 +56,17 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
     subsecondDisplay = <>.{tenths}</>;
   }
 
-  let flag = null;
-  if (time === 0) {
-    flag = ' ' + String.fromCodePoint(0x1f6a9);
-  }
+  const clockClassNames = classNames({
+    [css.clock]: true,
+    [css.timeOut]: time === 0,
+  });
 
   return (
-    <div className={css.clock}>
+    <div className={clockClassNames}>
       {hourDisplay}
       {minuteDisplay}
       {secondDisplay}
       {subsecondDisplay}
-      {flag}
     </div>
   );
 }

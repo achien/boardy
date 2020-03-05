@@ -1,5 +1,8 @@
 .clock {
   font-variant: tabular-nums;
-  font-size: 36px;
-  font-weight: 600;
+  font-size: 48px;
+}
+
+.clock.timeOut {
+  color: #a0a0a0;
 }

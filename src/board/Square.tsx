@@ -17,9 +17,6 @@ import wp from './pieces/cburnett/wp.svg';
 import wq from './pieces/cburnett/wq.svg';
 import wr from './pieces/cburnett/wr.svg';
 
-import dot from './pieces/dot.svg';
-import corners from './pieces/corners.svg';
-
 const COLORS = {
   // chessboard.js, Lichess
   light: '#f0d9b5',
