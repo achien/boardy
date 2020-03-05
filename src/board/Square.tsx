@@ -22,6 +22,7 @@ interface SquareProps {
   chess: ChessInstance;
   square: TSquare;
   highlight: SquareHighlight;
+  draggable: boolean;
 }
 
 export function Square(props: SquareProps): JSX.Element {
@@ -30,7 +31,7 @@ export function Square(props: SquareProps): JSX.Element {
   let piece = null;
   const chessPiece = chess.get(square);
   if (chessPiece !== null) {
-    const draggable = chessPiece.color === chess.turn();
+    const draggable = props.draggable && chessPiece.color === chess.turn();
     piece = <Piece piece={chessPiece} draggable={draggable} />;
   }
 

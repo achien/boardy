@@ -204,6 +204,7 @@ export function Board(props: BoardProps): JSX.Element {
           chess={chess}
           square={square}
           highlight={highlight}
+          draggable={canMove}
         />,
       );
     }
