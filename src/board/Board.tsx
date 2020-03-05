@@ -77,6 +77,13 @@ export function Board(props: BoardProps): JSX.Element {
   const movesByTarget: Record<string, Move> =
     selectedSquare === null ? {} : getMovesByTarget(chess, selectedSquare);
 
+  React.useEffect(() => {
+    if (!canMove) {
+      setSelectedSquare(null);
+      setHoveredSquare(null);
+    }
+  }, [canMove]);
+
   const makeMove = React.useCallback(
     (square: TSquare) => {
       if (square !== hoveredSquare) {
