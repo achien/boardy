@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ChessInstance, Move, Square as TSquare } from 'chess.js';
 
 import { Square, SquareHighlight } from './Square';
+import { useDimensions } from '../useDimensions';
 
 import css from './Board.css';
 
@@ -32,40 +33,11 @@ function getMovesByTarget(
   return movesByTarget;
 }
 
-function useBoardDimensions(
-  containerRef: React.RefObject<HTMLDivElement>,
-): [number, number, number] {
-  const [width, setWidth] = React.useState(0);
-  const [offsetLeft, setOffsetLeft] = React.useState(0);
-  const [offsetTop, setOffsetTop] = React.useState(0);
-
-  const setDimensions = React.useCallback((): void => {
-    if (containerRef.current != null) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setWidth(Math.min(rect.width, rect.height));
-      setOffsetLeft(rect.left);
-      setOffsetTop(rect.top);
-    }
-  }, [containerRef]);
-  // Update dimensions whenver the component is updated
-  React.useEffect(() => setDimensions());
-  // Register setDimensions on window resize because the component size
-  // might change
-  React.useEffect(() => {
-    window.addEventListener('resize', setDimensions);
-    return (): void => {
-      window.removeEventListener('resize', setDimensions);
-    };
-  }, [setDimensions]);
-
-  return [width, offsetLeft, offsetTop];
-}
-
 export function Board(props: BoardProps): JSX.Element {
   const { chess } = props;
   const canMove = props.canMove ?? false;
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const [width, offsetLeft, offsetTop] = useBoardDimensions(containerRef);
+  const containerRect = useDimensions(containerRef);
   const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
     null,
   );
@@ -77,25 +49,29 @@ export function Board(props: BoardProps): JSX.Element {
     null,
   );
 
+  const boardWidth =
+    containerRect === null
+      ? 0
+      : Math.min(containerRect.width, containerRect.height);
+
   // For some reason, DOM events on the squares are unstable.  There are a few
   // pixels near the boundary where pointer events will alternate between
   // the two squares, e.g. e3 and e4 when moving the mouse along that boundary.
-  // Instead, we calculate the square on our own from the event coordinates
-  // which are stable.
+  // Instead of listening to events on each square, we calculate the square
+  // on our own from the event coordinates which are stable.
   const computeSquare = React.useCallback(
     (clientX: number, clientY: number): TSquare => {
       // Not sure if this is a React bug or intentional, but clientX and
       // clientY are offset and don't start at (0,0)
-      const x = clientX - offsetLeft;
-      const y = clientY - offsetTop;
-      const xIdx = Math.max(0, Math.min(7, Math.floor((8 * x) / width)));
-      const yIdx = Math.max(0, Math.min(7, Math.floor((8 * y) / width)));
+      const x = clientX - containerRect!.left;
+      const y = clientY - containerRect!.top;
+      const xIdx = Math.max(0, Math.min(7, Math.floor((8 * x) / boardWidth)));
+      const yIdx = Math.max(0, Math.min(7, Math.floor((8 * y) / boardWidth)));
       const rank = 8 - yIdx;
-      const f = xIdx + 1;
-      const file = String.fromCharCode('a'.charCodeAt(0) + f - 1);
+      const file = String.fromCharCode('a'.charCodeAt(0) + xIdx);
       return (file + rank) as TSquare;
     },
-    [width, offsetLeft, offsetTop],
+    [containerRect, boardWidth],
   );
 
   const movesByTarget: Record<string, Move> =
@@ -220,7 +196,6 @@ export function Board(props: BoardProps): JSX.Element {
           key={square}
           chess={chess}
           square={square}
-          approxWidth={Math.floor(width / 8)}
           highlight={highlight}
         />,
       );
@@ -237,8 +212,8 @@ export function Board(props: BoardProps): JSX.Element {
     );
   }
   const style = {
-    width: width + 'px',
-    height: width + 'px',
+    width: boardWidth + 'px',
+    height: boardWidth + 'px',
   };
   return (
     <div ref={containerRef} className={css.container}>

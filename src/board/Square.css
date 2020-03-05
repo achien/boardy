@@ -1,34 +1,12 @@
-.squareOverlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  cursor: default;
-  background-size: contain;
-  background-repeat: none;
-}
-
-.piece {
-  /* With a transform the square background is not dragged.  No idea why. */
-  transform: translate(0, 0);
-}
-
-.piece.draggable {
-  cursor: grab;
-}
-
-.piece.dragging:active {
-  opacity: 0.5;
-  cursor: grabbing;
-}
-
-.squareBackground {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
 .square {
   position: relative;
   flex: 1;
+}
+
+.squareBackground,
+.target,
+.piece {
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }

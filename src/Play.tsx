@@ -7,9 +7,10 @@ import { Board } from './board/Board';
 import { Clock } from './Clock';
 import { ClockDisplay } from './ClockDisplay';
 import { Engine } from './uci';
+import { History } from './History';
 import { Position } from './Position';
 import { StatefulInput } from './StatefulInput';
-import { History } from './History';
+import { useDimensions } from './useDimensions';
 
 import css from './Play.css';
 
@@ -135,7 +136,7 @@ export function Play(): JSX.Element {
   // Board is square.  We maximize board area assuming right pane has a fixed
   // width and bottom left pane has a fixed height.
   const playRef = React.useRef<HTMLDivElement>(null);
-  const boardContainerRef = React.useRef<HTMLDivElement>(null);
+  const playRect = useDimensions(playRef, { measureOnResize: true });
   const [boardWidth, setBoardWidth] = React.useState(0);
   const [rightPaneWidth, setRightPaneWidth] = React.useState(0);
   const [bottomLeftPaneHeight, setBottomLeftPaneHeight] = React.useState(0);
@@ -150,29 +151,20 @@ export function Play(): JSX.Element {
       setRightPaneWidth(node.getBoundingClientRect().width);
     }
   }, []);
-  const setDimensions = React.useCallback((): void => {
+  React.useEffect((): void => {
     if (
-      playRef.current == null ||
-      boardContainerRef.current == null ||
+      playRect === null ||
       rightPaneWidth === 0 ||
       bottomLeftPaneHeight === 0
     ) {
       return;
     }
-    const playRect = playRef.current.getBoundingClientRect();
     const newWidth = Math.min(
       playRect.width - rightPaneWidth,
       playRect.height - bottomLeftPaneHeight,
     );
     setBoardWidth(newWidth);
-  }, [playRef, boardContainerRef, rightPaneWidth, bottomLeftPaneHeight]);
-  React.useEffect(() => {
-    setDimensions();
-    window.addEventListener('resize', setDimensions);
-    return (): void => {
-      window.removeEventListener('resize', setDimensions);
-    };
-  }, [setDimensions]);
+  }, [playRect, rightPaneWidth, bottomLeftPaneHeight]);
 
   const boardContainerStyle = {
     width: boardWidth + 'px',
@@ -186,11 +178,7 @@ export function Play(): JSX.Element {
   return (
     <div ref={playRef} className={css.play}>
       <div className={css.leftPane}>
-        <div
-          ref={boardContainerRef}
-          className={css.boardContainer}
-          style={boardContainerStyle}
-        >
+        <div className={css.boardContainer} style={boardContainerStyle}>
           <Board chess={position.chess} canMove={canMove} onMove={onMove} />
         </div>
         <div ref={setBottomLeftPaneRef} className={css.bottomLeftPane}>
