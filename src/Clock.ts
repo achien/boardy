@@ -1,11 +1,10 @@
 import * as EventEmitter from 'events';
 
-interface TimeOptions {
+export interface TimeControl {
   white: number;
   black: number;
   whiteIncrement?: number;
   blackIncrement?: number;
-  turn?: 'black' | 'white';
 }
 
 export class Clock {
@@ -16,16 +15,16 @@ export class Clock {
   private black: number;
   whiteIncrement: number;
   blackIncrement: number;
-  private turn: 'black' | 'white';
+  private turn: 'white' | 'black';
   private updateTime: number | null;
   private flagTimer: NodeJS.Timeout | null = null;
 
-  constructor(options: TimeOptions) {
+  constructor(options: TimeControl) {
     this.white = options.white;
     this.black = options.black;
-    this.whiteIncrement = options.whiteIncrement || 0;
-    this.blackIncrement = options.blackIncrement || 0;
-    this.turn = options.turn || 'black';
+    this.whiteIncrement = options.whiteIncrement ?? 0;
+    this.blackIncrement = options.blackIncrement ?? 0;
+    this.turn = 'black';
     this.updateTime = null;
 
     this.events = new EventEmitter();
@@ -65,11 +64,11 @@ export class Clock {
     this.events.emit('change');
   }
 
-  getTurn(): 'black' | 'white' {
+  getTurn(): 'white' | 'black' {
     return this.turn;
   }
 
-  get(color: 'black' | 'white'): number {
+  get(color: 'white' | 'black'): number {
     this.update();
     return color === 'white' ? this.white : this.black;
   }

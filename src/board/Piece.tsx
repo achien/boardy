@@ -19,7 +19,7 @@ import wp from './pieces/cburnett/wp.svg';
 import wq from './pieces/cburnett/wq.svg';
 import wr from './pieces/cburnett/wr.svg';
 
-const PIECES: Record<'black' | 'white', Record<Piece['type'], string>> = {
+const PIECES: Record<'white' | 'black', Record<Piece['type'], string>> = {
   black: {
     b: bb,
     k: bk,
@@ -39,7 +39,7 @@ const PIECES: Record<'black' | 'white', Record<Piece['type'], string>> = {
 };
 
 interface PieceProps {
-  color: 'black' | 'white';
+  color: 'white' | 'black';
   piece: Piece['type'];
   draggable: boolean;
 }

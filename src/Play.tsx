@@ -84,7 +84,7 @@ export function Play(): JSX.Element {
     }
   }, [position, engine, clock]);
   const setFlag = React.useCallback(
-    (color: 'black' | 'white') => {
+    (color: 'white' | 'black') => {
       setPosition(position.flag(color));
     },
     [position],

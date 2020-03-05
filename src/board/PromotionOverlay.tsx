@@ -7,7 +7,7 @@ import css from './PromotionOverlay.css';
 export type PromotionPiece = 'q' | 'n' | 'r' | 'b';
 
 interface Props {
-  color: 'black' | 'white';
+  color: 'white' | 'black';
   onClose: (piece: PromotionPiece | null) => void;
 }
 

@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import Chess, { ChessInstance, ShortMove } from 'chess.js';
 
 interface GameResult {
-  winner: 'black' | 'white' | 'draw';
+  winner: 'white' | 'black' | 'draw';
   reason: string;
 }
 
@@ -80,7 +80,7 @@ export class Position {
     return nextPosition;
   }
 
-  flag(color: 'black' | 'white'): Position {
+  flag(color: 'white' | 'black'): Position {
     assert(!this.isGameOver());
 
     const nextPosition = this.clone();

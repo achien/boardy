@@ -11,7 +11,7 @@ const MSEC_IN_HOUR = 60 * MSEC_IN_MIN;
 
 interface ClockDisplayProps {
   clock: Clock;
-  color: 'black' | 'white';
+  color: 'white' | 'black';
 }
 
 export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
