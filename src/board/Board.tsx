@@ -186,6 +186,13 @@ export function Board(props: BoardProps): JSX.Element {
 
   const onHover = React.useCallback(
     (clientX: number, clientY: number) => {
+      // We purposely do not check canInteract here for the promotion
+      // overlay case.  In pointerMove, we already ensure that the move
+      // target remains hovered in promotion mode.  We want to update the
+      // hover state while the promotion overlay is active so things look
+      // right after the overlay is closeed.  (Actually right now we
+      // unselect/unhighlight when closing the overlay so it doesn't matter,
+      // but this was not always thet case.)
       const square = computeSquare(clientX, clientY);
       if (square in movesByTarget) {
         setHoveredSquare(square);
@@ -208,6 +215,8 @@ export function Board(props: BoardProps): JSX.Element {
   const onPromotionOverlayClose = React.useCallback(
     (piece: PromotionPiece | null) => {
       setPromotionMove(null);
+      setSelectedSquare(null);
+      setHoveredSquare(null);
       if (piece !== null) {
         const move = Object.assign({}, promotionMove);
         move.promotion = piece;
@@ -237,6 +246,7 @@ export function Board(props: BoardProps): JSX.Element {
       } else if (square === hoveredSquare) {
         highlight = 'hovered';
       } else if (promotionMove && square === promotionMove.to) {
+        // Keep hovered square highlighted underneath the promotion overlay
         highlight = 'hovered';
       } else if (square in movesByTarget) {
         highlight = 'targeted';

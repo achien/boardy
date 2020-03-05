@@ -36,7 +36,7 @@ export function Play(): JSX.Element {
 
   // Setup the engine
   const [engine, _setEngine] = React.useState(
-    new Engine('stockfish', STOCKFISH_PATH),
+    new Engine('chessier', CHESSIER_PATH),
   );
   React.useEffect(() => {
     (async (): Promise<void> => {
