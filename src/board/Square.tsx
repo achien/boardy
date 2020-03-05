@@ -17,6 +17,9 @@ import wp from './pieces/cburnett/wp.svg';
 import wq from './pieces/cburnett/wq.svg';
 import wr from './pieces/cburnett/wr.svg';
 
+import dot from './pieces/dot.svg';
+import corners from './pieces/corners.svg';
+
 const COLORS = {
   // chessboard.js, Lichess
   light: '#f0d9b5',
@@ -90,6 +93,7 @@ function Piece(props: PieceProps): JSX.Element {
   };
   const iconClass = classNames({
     [css.piece]: true,
+    [css.squareOverlay]: true,
     [css.draggable]: draggable,
     [css.dragging]: isDragging,
   });
@@ -124,32 +128,38 @@ export function Square(props: SquareProps): JSX.Element {
   const squareColor = COLORS[chess.square_color(square)];
   let target = null;
   if (props.highlight === 'targeted') {
+    let svg;
     if (chess.get(square) != null) {
       // Render triangular borders on a square with a piece
-      const gradientColors = `${squareColor} 10%, transparent 10%`;
-      const targetStyle = {
-        filter: SELECTED_FILTER,
-        background:
-          `linear-gradient(to bottom left, ${gradientColors}), ` +
-          `linear-gradient(to bottom right, ${gradientColors}), ` +
-          `linear-gradient(to top left, ${gradientColors}), ` +
-          `linear-gradient(to top right, ${gradientColors})`,
-      };
-      target = <div className={css.target} style={targetStyle} />;
-    } else {
-      // Render a dot on an empty square
-      const dotStyle = {
-        color: squareColor,
-        filter: SELECTED_FILTER,
-        fontSize: props.approxWidth + 'px',
-        lineHeight: props.approxWidth + 'px',
-      };
-      target = (
-        <div className={css.target} style={dotStyle}>
-          •
-        </div>
+      svg = (
+        <>
+          <polygon points="0 0 0 18 18 0" />
+          <polygon points="82 0 100 0 100 18" />
+          <polygon points="100 82 100 100 82 100" />
+          <polygon points="0 82 0 100 18 100" />
+        </>
       );
+    } else {
+      svg = <circle cx="50" cy="50" r="13" />;
     }
+    const targetStyle = {
+      filter: SELECTED_FILTER,
+    };
+    target = (
+      <div className={css.squareOverlay} style={targetStyle}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          version="1.1"
+          width="100%"
+          height="100%"
+          viewBox="0 0 100 100"
+        >
+          <g fill={squareColor} strokeWidth="0">
+            {svg}
+          </g>
+        </svg>
+      </div>
+    );
   }
 
   let filter = undefined;
