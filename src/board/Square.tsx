@@ -32,7 +32,13 @@ export function Square(props: SquareProps): JSX.Element {
   const chessPiece = chess.get(square);
   if (chessPiece !== null) {
     const draggable = props.draggable && chessPiece.color === chess.turn();
-    piece = <Piece piece={chessPiece} draggable={draggable} />;
+    piece = (
+      <Piece
+        color={chessPiece.color === 'b' ? 'black' : 'white'}
+        piece={chessPiece.type}
+        draggable={draggable}
+      />
+    );
   }
 
   const squareColor = COLORS[chess.square_color(square)];
@@ -84,7 +90,7 @@ export function Square(props: SquareProps): JSX.Element {
     <div className={css.square}>
       <div className={css.squareBackground} style={backgroudStyle} />
       {target}
-      <div className={css.piece}>{piece}</div>
+      {piece}
     </div>
   );
 }

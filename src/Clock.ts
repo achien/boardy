@@ -5,7 +5,7 @@ interface TimeOptions {
   black: number;
   whiteIncrement?: number;
   blackIncrement?: number;
-  turn?: 'white' | 'black';
+  turn?: 'black' | 'white';
 }
 
 export class Clock {
@@ -16,7 +16,7 @@ export class Clock {
   private black: number;
   whiteIncrement: number;
   blackIncrement: number;
-  private turn: 'white' | 'black';
+  private turn: 'black' | 'white';
   private updateTime: number | null;
   private flagTimer: NodeJS.Timeout | null = null;
 
@@ -65,11 +65,11 @@ export class Clock {
     this.events.emit('change');
   }
 
-  getTurn(): 'white' | 'black' {
+  getTurn(): 'black' | 'white' {
     return this.turn;
   }
 
-  get(color: 'white' | 'black'): number {
+  get(color: 'black' | 'white'): number {
     this.update();
     return color === 'white' ? this.white : this.black;
   }

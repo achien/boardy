@@ -19,8 +19,8 @@ import wp from './pieces/cburnett/wp.svg';
 import wq from './pieces/cburnett/wq.svg';
 import wr from './pieces/cburnett/wr.svg';
 
-const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
-  b: {
+const PIECES: Record<'black' | 'white', Record<Piece['type'], string>> = {
+  black: {
     b: bb,
     k: bk,
     n: bn,
@@ -28,7 +28,7 @@ const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
     q: bq,
     r: br,
   },
-  w: {
+  white: {
     b: wb,
     k: wk,
     n: wn,
@@ -39,7 +39,8 @@ const PIECES: Record<Piece['color'], Record<Piece['type'], string>> = {
 };
 
 interface PieceProps {
-  piece: Piece;
+  color: 'black' | 'white';
+  piece: Piece['type'];
   draggable: boolean;
 }
 
@@ -65,9 +66,9 @@ export function Piece(props: PieceProps): JSX.Element {
   );
   const onDragEnd = React.useCallback(() => setIsDragging(false), []);
 
-  const { piece, draggable } = props;
+  const { color, piece, draggable } = props;
   const iconStyle = {
-    backgroundImage: 'url(' + PIECES[piece.color][piece.type] + ')',
+    backgroundImage: 'url(' + PIECES[color][piece] + ')',
   };
   const iconClass = classNames({
     [css.piece]: true,

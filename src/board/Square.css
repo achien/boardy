@@ -4,8 +4,7 @@
 }
 
 .squareBackground,
-.target,
-.piece {
+.target {
   position: absolute;
   width: 100%;
   height: 100%;

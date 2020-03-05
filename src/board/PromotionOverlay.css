@@ -1,0 +1,41 @@
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.pieces {
+  width: 60%;
+  height: 15%;
+  display: flex;
+  flex-direction: row;
+}
+
+.piecePositioner {
+  flex: 1;
+  height: 100%;
+  background-color: white;
+}
+
+.piece {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+}
+
+.piece:hover {
+  background: radial-gradient(closest-side, #404040, transparent);
+}
+
+.piece:active {
+  left: 10%;
+  top: 10%;
+  width: 80%;
+  height: 80%;
+}

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ChessInstance, Move, Square as TSquare } from 'chess.js';
 
+import { PromotionOverlay, PromotionPiece } from './PromotionOverlay';
 import { Square, SquareHighlight } from './Square';
 import { useDimensions } from '../useDimensions';
 
@@ -23,10 +24,13 @@ function getMovesByTarget(
   const movesByTarget: Record<string, Move> = {};
   moves.forEach(move => {
     if (move.to in movesByTarget) {
-      console.error(
-        `Multiple moves from ${square} to ${move.to}: ` +
-          `${movesByTarget[move.to].san} and ${move.san}`,
-      );
+      const other = movesByTarget[move.to];
+      if (!(move.promotion && other.promotion)) {
+        console.error(
+          `Multiple non-promotiton moves from ${square} to ${move.to}: ` +
+            `${movesByTarget[move.to].san} and ${move.san}`,
+        );
+      }
     }
     movesByTarget[move.to] = move;
   });
@@ -48,7 +52,9 @@ export function Board(props: BoardProps): JSX.Element {
   const [hoveredSquare, setHoveredSquare] = React.useState<TSquare | null>(
     null,
   );
+  const [promotionMove, setPromotionMove] = React.useState<Move | null>(null);
 
+  const canInteract = canMove && promotionMove === null;
   const boardWidth =
     containerRect === null
       ? 0
@@ -85,13 +91,7 @@ export function Board(props: BoardProps): JSX.Element {
   }, [canMove]);
 
   const makeMove = React.useCallback(
-    (square: TSquare) => {
-      if (square !== hoveredSquare) {
-        console.error(
-          `Moving piece ${square} instead of indicated ${hoveredSquare}`,
-        );
-      }
-      const move = movesByTarget[square];
+    (move: Move) => {
       const onMove = props.onMove;
       if (onMove) {
         onMove(move);
@@ -99,12 +99,29 @@ export function Board(props: BoardProps): JSX.Element {
       setSelectedSquare(null);
       setHoveredSquare(null);
     },
-    [movesByTarget, props.onMove, hoveredSquare],
+    [props.onMove],
+  );
+
+  const makeMoveOrPromote = React.useCallback(
+    (square: TSquare) => {
+      if (square !== hoveredSquare) {
+        console.error(
+          `Moving piece to ${square} instead of indicated ${hoveredSquare}`,
+        );
+      }
+      const move = movesByTarget[square];
+      if (move.promotion) {
+        setPromotionMove(move);
+      } else {
+        makeMove(movesByTarget[square]);
+      }
+    },
+    [hoveredSquare, movesByTarget, makeMove],
   );
 
   const onPointerDown = React.useCallback(
     (e: React.PointerEvent) => {
-      if (!canMove) {
+      if (!canInteract) {
         return;
       }
       const square = computeSquare(e.clientX, e.clientY);
@@ -117,7 +134,7 @@ export function Board(props: BoardProps): JSX.Element {
         setDeselectingSquare(square);
       } else if (square in movesByTarget) {
         // Move the piece
-        makeMove(square);
+        makeMoveOrPromote(square);
       } else if (piece && piece.color === chess.turn()) {
         // Select any square with a piece owned by the current player
         setSelectedSquare(square);
@@ -127,11 +144,18 @@ export function Board(props: BoardProps): JSX.Element {
         setHoveredSquare(null);
       }
     },
-    [canMove, computeSquare, selectedSquare, movesByTarget, makeMove, chess],
+    [
+      canInteract,
+      computeSquare,
+      selectedSquare,
+      movesByTarget,
+      makeMoveOrPromote,
+      chess,
+    ],
   );
   const onPointerUp = React.useCallback(
     (e: React.PointerEvent) => {
-      if (!canMove) {
+      if (!canInteract) {
         return;
       }
       const square = computeSquare(e.clientX, e.clientY);
@@ -144,27 +168,24 @@ export function Board(props: BoardProps): JSX.Element {
       }
       setDeselectingSquare(null);
     },
-    [canMove, computeSquare, deselectingSquare],
+    [canInteract, computeSquare, deselectingSquare],
   );
   const onDrop = React.useCallback(
     (e: React.DragEvent) => {
-      if (!canMove) {
+      if (!canInteract) {
         return;
       }
       const square = computeSquare(e.clientX, e.clientY);
       if (square in movesByTarget) {
         // Move the piece
-        makeMove(square);
+        makeMoveOrPromote(square);
       }
     },
-    [canMove, computeSquare, movesByTarget, makeMove],
+    [canInteract, computeSquare, movesByTarget, makeMoveOrPromote],
   );
 
   const onHover = React.useCallback(
     (clientX: number, clientY: number) => {
-      if (!canMove) {
-        return;
-      }
       const square = computeSquare(clientX, clientY);
       if (square in movesByTarget) {
         setHoveredSquare(square);
@@ -172,7 +193,7 @@ export function Board(props: BoardProps): JSX.Element {
         setHoveredSquare(null);
       }
     },
-    [canMove, computeSquare, movesByTarget],
+    [computeSquare, movesByTarget],
   );
   const onDrag = React.useCallback(
     (e: React.DragEvent) => onHover(e.clientX, e.clientY),
@@ -183,6 +204,26 @@ export function Board(props: BoardProps): JSX.Element {
     [onHover],
   );
   const onPointerLeave = React.useCallback(() => setHoveredSquare(null), []);
+
+  const onPromotionOverlayClose = React.useCallback(
+    (piece: PromotionPiece | null) => {
+      setPromotionMove(null);
+      if (piece !== null) {
+        const move = Object.assign({}, promotionMove);
+        move.promotion = piece;
+        makeMove(move);
+      }
+    },
+    [promotionMove, makeMove],
+  );
+
+  let promotionOverlay = null;
+  if (promotionMove !== null) {
+    const color = promotionMove.color === 'b' ? 'black' : 'white';
+    promotionOverlay = (
+      <PromotionOverlay color={color} onClose={onPromotionOverlayClose} />
+    );
+  }
 
   const ranks = [];
   for (let rank = 8; rank >= 1; rank--) {
@@ -195,6 +236,8 @@ export function Board(props: BoardProps): JSX.Element {
         highlight = 'selected';
       } else if (square === hoveredSquare) {
         highlight = 'hovered';
+      } else if (promotionMove && square === promotionMove.to) {
+        highlight = 'hovered';
       } else if (square in movesByTarget) {
         highlight = 'targeted';
       }
@@ -204,7 +247,7 @@ export function Board(props: BoardProps): JSX.Element {
           chess={chess}
           square={square}
           highlight={highlight}
-          draggable={canMove}
+          draggable={canInteract}
         />,
       );
     }
@@ -236,6 +279,7 @@ export function Board(props: BoardProps): JSX.Element {
         onDrop={onDrop}
       >
         {ranks}
+        {promotionOverlay}
       </div>
     </div>
   );
