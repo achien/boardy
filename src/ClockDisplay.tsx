@@ -35,12 +35,21 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
 
   let hourDisplay = null;
   if (time >= MSEC_IN_HOUR) {
-    const hourText = hours >= 10 ? hours.toString() : '0' + hours;
-    hourDisplay = <>{hourText}:</>;
+    hourDisplay = <>{hours}:</>;
   }
 
-  const minuteText = minutes >= 10 ? minutes.toString() : '0' + minutes;
-  const minuteDisplay = <>{minuteText}:</>;
+  let minuteDisplay;
+  if (time >= MSEC_IN_HOUR || minutes >= 10) {
+    const minuteText = minutes >= 10 ? minutes.toString() : '0' + minutes;
+    minuteDisplay = <>{minuteText}:</>;
+  } else {
+    minuteDisplay = (
+      <>
+        <span className={css.leadingZero}>0</span>
+        {minutes}:
+      </>
+    );
+  }
 
   const secondText = seconds >= 10 ? seconds.toString() : '0' + seconds;
   const secondDisplay = <>{secondText}</>;

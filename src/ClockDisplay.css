@@ -3,6 +3,10 @@
   font-size: 48px;
 }
 
-.clock.timeOut {
+.leadingZero {
+  color: transparent;
+}
+
+.timeOut {
   color: #a0a0a0;
 }
