@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 import { Clock } from './Clock';
 
-import css from './ClockDisplay.css';
+import styles from './ClockDisplay.css';
 
 const MSEC_IN_SEC = 1000;
 const MSEC_IN_MIN = 60 * MSEC_IN_SEC;
@@ -45,7 +45,7 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
   } else {
     minuteDisplay = (
       <>
-        <span className={css.leadingZero}>0</span>
+        <span className={styles.leadingZero}>0</span>
         {minutes}:
       </>
     );
@@ -66,8 +66,8 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
   }
 
   const clockClassNames = classNames({
-    [css.clock]: true,
-    [css.timeOut]: time === 0,
+    [styles.clock]: true,
+    [styles.timeOut]: time === 0,
   });
 
   return (

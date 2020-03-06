@@ -4,7 +4,7 @@ import { Piece } from 'chess.js';
 
 import { useDimensions } from '../useDimensions';
 
-import css from './Piece.css';
+import styles from './Piece.css';
 
 import bb from './pieces/cburnett/bb.svg';
 import bk from './pieces/cburnett/bk.svg';
@@ -71,10 +71,10 @@ export function Piece(props: PieceProps): JSX.Element {
     backgroundImage: 'url(' + PIECES[color][piece] + ')',
   };
   const iconClass = classNames({
-    [css.piece]: true,
-    [css.squareOverlay]: true,
-    [css.draggable]: draggable,
-    [css.dragging]: isDragging,
+    [styles.piece]: true,
+    [styles.squareOverlay]: true,
+    [styles.draggable]: draggable,
+    [styles.dragging]: isDragging,
   });
   return (
     <div

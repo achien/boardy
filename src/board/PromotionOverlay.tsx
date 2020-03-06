@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Piece } from './Piece';
 
-import css from './PromotionOverlay.css';
+import styles from './PromotionOverlay.css';
 
 export type PromotionPiece = 'q' | 'n' | 'r' | 'b';
 
@@ -61,9 +61,9 @@ export function PromotionOverlay(props: Props): JSX.Element {
   const pieces = [];
   for (const piece of promotionPieces) {
     pieces.push(
-      <div key={piece} className={css.piecePositioner}>
+      <div key={piece} className={styles.piecePositioner}>
         <a
-          className={css.piece}
+          className={styles.piece}
           onPointerDown={handlePointerDownFor(piece)}
           onClick={handleClickFor(piece)}
           data-piece={piece}
@@ -76,11 +76,11 @@ export function PromotionOverlay(props: Props): JSX.Element {
 
   return (
     <div
-      className={css.overlay}
+      className={styles.overlay}
       onPointerDown={handlePointerDownFor(null)}
       onClick={handleClickFor(null)}
     >
-      <div className={css.pieces}>{pieces}</div>
+      <div className={styles.pieces}>{pieces}</div>
     </div>
   );
 }

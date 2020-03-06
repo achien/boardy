@@ -5,7 +5,7 @@ import { PromotionOverlay, PromotionPiece } from './PromotionOverlay';
 import { Square, SquareHighlight } from './Square';
 import { useDimensions } from '../useDimensions';
 
-import css from './Board.css';
+import styles from './Board.css';
 
 interface BoardProps {
   chess: ChessInstance;
@@ -277,9 +277,9 @@ export function Board(props: BoardProps): JSX.Element {
     height: boardWidth + 'px',
   };
   return (
-    <div ref={containerRef} className={css.container}>
+    <div ref={containerRef} className={styles.container}>
       <div
-        className={css.board}
+        className={styles.board}
         style={style}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}

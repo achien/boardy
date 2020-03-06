@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Position } from './Position';
 
-import css from './History.css';
+import styles from './History.css';
 
 interface MovePair {
   moveNumber: number;
@@ -49,9 +49,9 @@ export function History(props: HistoryProps): JSX.Element {
     const { moveNumber, whiteMove, blackMove } = movePair;
     return (
       <tr key={moveNumber}>
-        <td className={css.moveNumber}>{moveNumber}.</td>
-        <td className={css.move}>{whiteMove ?? '…'}</td>
-        <td className={css.move}>{blackMove}</td>
+        <td className={styles.moveNumber}>{moveNumber}.</td>
+        <td className={styles.move}>{whiteMove ?? '…'}</td>
+        <td className={styles.move}>{blackMove}</td>
       </tr>
     );
   });
@@ -72,19 +72,19 @@ export function History(props: HistoryProps): JSX.Element {
         break;
     }
     bottom = (
-      <div className={css.resultContainer}>
-        <div className={css.result}>{result}</div>
-        <div className={css.resultReason}>{gameResult.reason}</div>
+      <div className={styles.resultContainer}>
+        <div className={styles.result}>{result}</div>
+        <div className={styles.resultReason}>{gameResult.reason}</div>
       </div>
     );
   }
 
   return (
-    <div className={css.container}>
-      <table className={css.table}>
+    <div className={styles.container}>
+      <table className={styles.table}>
         <tbody>{rows}</tbody>
       </table>
-      <div ref={bottomRef} className={css.bottom}>
+      <div ref={bottomRef} className={styles.bottom}>
         {bottom}
       </div>
     </div>

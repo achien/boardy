@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 
 import { Play, makeComputerPlayer, makeHumanPlayer } from './Play';
 
-import css from './App.css';
+import styles from './App.css';
 
 import 'typeface-roboto';
 
@@ -48,7 +48,7 @@ function App(): JSX.Element {
 
 (async function(): Promise<void> {
   const root = document.createElement('div');
-  root.className = css.reactRoot;
+  root.className = styles.reactRoot;
   document.body.appendChild(root);
   ReactDOM.render(<App />, root);
 })();

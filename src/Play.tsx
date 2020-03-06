@@ -12,7 +12,7 @@ import { Spinner } from './Spinner';
 import { StatefulInput } from './StatefulInput';
 import { useDimensions } from './useDimensions';
 
-import css from './Play.css';
+import styles from './Play.css';
 
 interface HumanPlayer {
   readonly type: 'human';
@@ -277,7 +277,7 @@ export function Play(props: Readonly<Props>): JSX.Element {
   let loadingOverlay = null;
   if (loading) {
     loadingOverlay = (
-      <div className={css.loadingOverlay}>
+      <div className={styles.loadingOverlay}>
         <Spinner />
       </div>
     );
@@ -294,37 +294,37 @@ export function Play(props: Readonly<Props>): JSX.Element {
     }
   }
   return (
-    <div ref={playRef} className={css.play}>
-      <div className={css.leftPane}>
-        <div className={css.boardContainer} style={boardContainerStyle}>
+    <div ref={playRef} className={styles.play}>
+      <div className={styles.leftPane}>
+        <div className={styles.boardContainer} style={boardContainerStyle}>
           <Board chess={position.chess} canMove={canMove} onMove={onMove} />
           {loadingOverlay}
         </div>
-        <div ref={setBottomLeftPaneRef} className={css.bottomLeftPane}>
-          <div className={css.inputRow}>
-            <label className={css.inputLabel} htmlFor="fen">
+        <div ref={setBottomLeftPaneRef} className={styles.bottomLeftPane}>
+          <div className={styles.inputRow}>
+            <label className={styles.inputLabel} htmlFor="fen">
               FEN
             </label>
             <StatefulInput
               value={position.chess.fen()}
               onValueInput={onFenInput}
               id="fen"
-              className={classNames(css.input, css.fenInput)}
+              className={classNames(styles.input, styles.fenInput)}
             />
           </div>
         </div>
       </div>
-      <div ref={setRightPaneRef} className={css.rightPane}>
+      <div ref={setRightPaneRef} className={styles.rightPane}>
         <div
-          className={css.boardRightContainer}
+          className={styles.boardRightContainer}
           style={boardRightContainerStyle}
         >
           <ClockDisplay clock={clock} color={'black'} />
-          <div className={css.divider} />
-          <div className={css.pgn}>
+          <div className={styles.divider} />
+          <div className={styles.pgn}>
             <History position={position} />
           </div>
-          <div className={css.divider} />
+          <div className={styles.divider} />
           <ClockDisplay clock={clock} color={'white'} />
         </div>
       </div>

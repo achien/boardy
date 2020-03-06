@@ -3,7 +3,7 @@ import { ChessInstance, Square as TSquare } from 'chess.js';
 
 import { Piece } from './Piece';
 
-import css from './Square.css';
+import styles from './Square.css';
 
 const COLORS = {
   // chessboard.js, Lichess
@@ -62,7 +62,7 @@ export function Square(props: SquareProps): JSX.Element {
       filter: SELECTED_FILTER,
     };
     target = (
-      <div className={css.target} style={targetStyle}>
+      <div className={styles.target} style={targetStyle}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           version="1.1"
@@ -87,8 +87,8 @@ export function Square(props: SquareProps): JSX.Element {
     filter: filter,
   };
   return (
-    <div className={css.square}>
-      <div className={css.squareBackground} style={backgroudStyle} />
+    <div className={styles.square}>
+      <div className={styles.squareBackground} style={backgroudStyle} />
       {target}
       {piece}
     </div>
