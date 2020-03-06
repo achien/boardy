@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { Play, makeComputerPlayer, makeHumanPlayer } from './Play';
+import { Play } from './Play';
+import { makeComputerPlayer, makeHumanPlayer } from './Player';
 
 import styles from './App.css';
 
@@ -27,7 +28,7 @@ function App(): JSX.Element {
     // },
   );
   const [blackPlayer, _setBlackPlayer] = React.useState(
-    makeComputerPlayer('Chessey'),
+    makeComputerPlayer('Komodo'),
     // makeHumanPlayer('Andrew'),
   );
   const [timeControl, _setTimeControl] = React.useState({

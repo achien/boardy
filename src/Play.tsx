@@ -5,48 +5,14 @@ import { Move } from 'chess.js';
 import { Board } from './board/Board';
 import { Clock, TimeControl } from './Clock';
 import { ClockDisplay } from './ClockDisplay';
-import { Engine } from './Engine';
 import { History } from './History';
+import { HumanPlayer, ComputerPlayer, Player } from './Player';
 import { Position } from './Position';
 import { Spinner } from './Spinner';
 import { StatefulInput } from './StatefulInput';
 import { useDimensions } from './useDimensions';
 
 import styles from './Play.css';
-
-interface HumanPlayer {
-  readonly type: 'human';
-  readonly name: string;
-}
-
-interface ComputerPlayer {
-  readonly type: 'computer';
-  readonly engine: Engine;
-}
-
-type Player = HumanPlayer | ComputerPlayer;
-
-const ENGINES = {
-  Stockfish:
-    '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
-  Chessey: '/Users/andrewchien/code/chessey/build/chessey',
-  Chessier: '/Users/andrewchien/code/chessier/target/debug/chessier',
-  Komodo: '/Users/andrewchien/Downloads/komodo-10_ae4bdf/OSX/komodo-10-64-osx',
-};
-
-export function makeComputerPlayer(name: keyof typeof ENGINES): ComputerPlayer {
-  return {
-    type: 'computer',
-    engine: new Engine(name, ENGINES[name]),
-  };
-}
-
-export function makeHumanPlayer(name: string): HumanPlayer {
-  return {
-    type: 'human',
-    name,
-  };
-}
 
 function usePlayer(
   player: Player,
@@ -60,7 +26,7 @@ function usePlayer(
 
   // Setup the engine
   React.useEffect(() => {
-    if (player.type !== 'computer') {
+    if (!(player instanceof ComputerPlayer)) {
       setIsReady(true);
       return;
     }
@@ -82,7 +48,7 @@ function usePlayer(
 
   // Have the engine play when it's their turn
   React.useEffect(() => {
-    if (player.type !== 'computer') {
+    if (!(player instanceof ComputerPlayer)) {
       return;
     }
     const engine = player.engine;
@@ -98,7 +64,7 @@ function usePlayer(
 
   // Make the engine's move
   React.useEffect(() => {
-    if (player.type !== 'computer') {
+    if (!(player instanceof ComputerPlayer)) {
       return;
     }
     const engine = player.engine;
@@ -145,10 +111,10 @@ export function Play(props: Readonly<Props>): JSX.Element {
 
   const newGame = React.useCallback(
     (fen?: string) => {
-      if (whitePlayer.type === 'computer') {
+      if (whitePlayer instanceof ComputerPlayer) {
         whitePlayer.engine.newGame();
       }
-      if (blackPlayer.type === 'computer') {
+      if (blackPlayer instanceof ComputerPlayer) {
         blackPlayer.engine.newGame();
       }
       const nextPosition = new Position(fen);
@@ -157,8 +123,8 @@ export function Play(props: Readonly<Props>): JSX.Element {
       // If the first player to move is an engine, start the clock.  If it's
       // a player, leave the clock paused until it's their turn.
       if (
-        (turn === 'white' && whitePlayer.type === 'computer') ||
-        (turn === 'black' && blackPlayer.type === 'computer')
+        (turn === 'white' && whitePlayer instanceof ComputerPlayer) ||
+        (turn === 'black' && blackPlayer instanceof ComputerPlayer)
       ) {
         nextClock.start();
       }
@@ -285,11 +251,11 @@ export function Play(props: Readonly<Props>): JSX.Element {
 
   let canMove = !loading && !position.isGameOver();
   if (position.chess.turn() === 'w') {
-    if (whitePlayer.type === 'computer') {
+    if (whitePlayer instanceof ComputerPlayer) {
       canMove = false;
     }
   } else {
-    if (blackPlayer.type === 'computer') {
+    if (blackPlayer instanceof ComputerPlayer) {
       canMove = false;
     }
   }
@@ -321,9 +287,13 @@ export function Play(props: Readonly<Props>): JSX.Element {
         >
           <ClockDisplay clock={clock} color={'black'} />
           <div className={styles.divider} />
-          <div className={styles.pgn}>
+          <div className={styles.name}>{blackPlayer.getName()}</div>
+          <div className={styles.divider} />
+          <div className={styles.history}>
             <History position={position} />
           </div>
+          <div className={styles.divider} />
+          <div className={styles.name}>{whitePlayer.getName()}</div>
           <div className={styles.divider} />
           <ClockDisplay clock={clock} color={'white'} />
         </div>
