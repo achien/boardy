@@ -13,7 +13,6 @@ import { StatefulInput } from './StatefulInput';
 import { useDimensions } from './useDimensions';
 
 import css from './Play.css';
-import { AssertionError } from 'assert';
 
 interface HumanPlayer {
   readonly type: 'human';

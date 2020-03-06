@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import * as assert from 'browser-assert';
 
 import Chess, { ChessInstance, ShortMove } from 'chess.js';
 

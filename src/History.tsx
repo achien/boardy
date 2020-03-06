@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as assert from 'assert';
 
 import { Position } from './Position';
 
