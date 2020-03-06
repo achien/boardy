@@ -15,12 +15,16 @@ document.addEventListener('dragover', (e: DragEvent) => {
 });
 
 function App(): JSX.Element {
-  const [whitePlayer, _setWhitePlayer] = React.useState(
-    makeComputerPlayer('Chessier'),
-  );
+  const [whitePlayer, _setWhitePlayer] = React.useState(() => {
+    const player = makeComputerPlayer('Stockfish');
+    player.engine.setOptions({
+      'Skill Level': 10,
+    });
+    return player;
+  });
   const [blackPlayer, _setBlackPlayer] = React.useState(
-    // makeComputerPlayer('Stockfish'),
-    makeHumanPlayer('Andrew'),
+    makeComputerPlayer('Stockfish'),
+    // makeHumanPlayer('Andrew'),
   );
   const [timeControl, _setTimeControl] = React.useState({
     white: 60 * 1000,

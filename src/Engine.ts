@@ -74,15 +74,18 @@ const StandardOptionTypes: Record<string, OptionType> = {
   /* eslint-enable */
 };
 
+type optionValue = boolean | number | string | null;
+
 export class Engine {
   readonly name: string;
   readonly path: string;
+  readonly options: Record<string, optionValue>;
   readonly events: EventEmitter;
 
   // Engine-provided info
   fullName: string | null = null;
   author: string | null = null;
-  options: Record<string, Option>;
+  availableOptions: Record<string, Option>;
 
   // class internals
   private state: State;
@@ -90,12 +93,17 @@ export class Engine {
   private process: ChildProcess | null = null;
   private readline: readline.Interface | null = null;
 
-  constructor(name: string, path: string) {
+  constructor(
+    name: string,
+    path: string,
+    options?: Record<string, optionValue>,
+  ) {
     this.name = name;
     this.path = path;
+    this.options = options ?? {};
     this.events = new EventEmitter();
 
-    this.options = {};
+    this.availableOptions = {};
 
     this.state = State.Loading;
     this.stateEmitter = new EventEmitter();
@@ -113,6 +121,11 @@ export class Engine {
       };
       this.stateEmitter.on('change', listener);
     });
+  }
+
+  setOptions(options: Record<string, optionValue>): this {
+    Object.assign(this.options, options);
+    return this;
   }
 
   // Starts the engine process then sends 'uci' and waits for 'uciok'.  At
@@ -133,9 +146,54 @@ export class Engine {
     await this.waitForState(State.UCI);
   });
 
-  // Sends 'isready' and waits for 'readyok'.  At this point the engine is
-  // ready to be used.
+  // Sends options, then sends 'isready' and waits for 'readyok'.
+  // After this point the engine is ready to be used.
   ready = memoize(async () => {
+    // We should probably validate option values against availableOptions
+    for (const name in this.options) {
+      const config = this.availableOptions[name];
+      const value = this.options[name];
+      let error = null;
+      if (!config) {
+        error = 'option not found';
+      } else if (value === null) {
+        if (config.type !== 'button') {
+          error = `option type ${config.type} does not support null value`;
+        }
+        this.send(`setoption name ${name}`);
+      } else if (typeof value === 'number') {
+        if (config.type !== 'spin') {
+          error = `option type ${config.type} does not support number value`;
+        } else if (value < config.min || value > config.max) {
+          error = `value is out of range [${config.min}, ${config.max}]`;
+        }
+        this.send(`setoption name ${name} value ${value}`);
+      } else if (typeof value === 'boolean') {
+        if (config.type !== 'check') {
+          error = `option type ${config.type} does not support boolean value`;
+        }
+        if (value) {
+          this.send(`setoption name ${name} value true`);
+        } else {
+          this.send(`setoption name ${name} value false`);
+        }
+      } else {
+        if (config.type !== 'combo' && config.type !== 'spin') {
+          error = `option type ${config.type} does not support string value`;
+        } else if (
+          config.type === 'combo' &&
+          config.vars.indexOf(value) === -1
+        ) {
+          error = `expect value to be one of [${config.vars.join(', ')}]`;
+        }
+        this.send(`setoption name ${name} value ${value}`);
+      }
+      if (error != null) {
+        console.error(
+          `<${this.name}> error for option ${name}, value ${value}: ${error}`,
+        );
+      }
+    }
     this.send('isready');
     await this.waitForState(State.Ready);
   });
@@ -234,7 +292,7 @@ export class Engine {
   private handleOption(tokens: string[]): void {
     try {
       const option = this.parseOption(tokens);
-      if (option.name in this.options) {
+      if (option.name in this.availableOptions) {
         console.error(
           `<${this.name}> Duplicate option ${option.name}: ${tokens.join(' ')}`,
         );
@@ -249,7 +307,7 @@ export class Engine {
           );
         }
       }
-      this.options[option.name] = option;
+      this.availableOptions[option.name] = option;
     } catch (error) {
       console.error(
         `<${this.name}> Invalid option (${error}): ${tokens.join(' ')}`,

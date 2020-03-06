@@ -5,7 +5,7 @@ import { Move } from 'chess.js';
 import { Board } from './board/Board';
 import { Clock, TimeControl } from './Clock';
 import { ClockDisplay } from './ClockDisplay';
-import { Engine } from './uci';
+import { Engine } from './Engine';
 import { History } from './History';
 import { Position } from './Position';
 import { StatefulInput } from './StatefulInput';
