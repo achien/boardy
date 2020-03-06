@@ -19,12 +19,12 @@ export class Clock {
   private updateTime: number | null;
   private flagTimer: NodeJS.Timeout | null = null;
 
-  constructor(options: TimeControl) {
+  constructor(options: TimeControl, turn: 'white' | 'black') {
     this.white = options.white;
     this.black = options.black;
     this.whiteIncrement = options.whiteIncrement ?? 0;
     this.blackIncrement = options.blackIncrement ?? 0;
-    this.turn = 'black';
+    this.turn = turn;
     this.updateTime = null;
 
     this.events = new EventEmitter();
@@ -41,15 +41,20 @@ export class Clock {
     this.updateFlagTimer();
   }
 
-  start(): void {
+  start(color?: 'white' | 'black'): void {
     this.updateTime = Date.now();
+    if (color != null) {
+      this.turn = color;
+    }
     this.events.emit('change');
     this.updateFlagTimer();
   }
 
   press(): void {
+    // To unpause while pressing we switch the colors then start the clock.
+    // This is used for the first move of the game when the clock starts paused.
     if (this.isStopped()) {
-      this.start();
+      this.start(this.turn === 'white' ? 'black' : 'white');
       return;
     }
     this.update();

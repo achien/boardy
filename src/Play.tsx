@@ -8,10 +8,12 @@ import { ClockDisplay } from './ClockDisplay';
 import { Engine } from './Engine';
 import { History } from './History';
 import { Position } from './Position';
+import { Spinner } from './Spinner';
 import { StatefulInput } from './StatefulInput';
 import { useDimensions } from './useDimensions';
 
 import css from './Play.css';
+import { AssertionError } from 'assert';
 
 interface HumanPlayer {
   readonly type: 'human';
@@ -30,6 +32,7 @@ const ENGINES = {
     '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
   Chessey: '/Users/andrewchien/code/chessey/build/chessey',
   Chessier: '/Users/andrewchien/code/chessier/target/debug/chessier',
+  Komodo: '/Users/andrewchien/Downloads/komodo-10_ae4bdf/OSX/komodo-10-64-osx',
 };
 
 export function makeComputerPlayer(name: keyof typeof ENGINES): ComputerPlayer {
@@ -52,17 +55,21 @@ function usePlayer(
   position: Position,
   setPosition: React.Dispatch<React.SetStateAction<Position>>,
   clock: Clock,
-): void {
+  gameStarted: boolean,
+): boolean {
+  const [isReady, setIsReady] = React.useState(false);
+
   // Setup the engine
   React.useEffect(() => {
     if (player.type !== 'computer') {
+      setIsReady(true);
       return;
     }
     const engine = player.engine;
     (async (): Promise<void> => {
       await engine.start();
       await engine.ready();
-      engine.newGame();
+      setIsReady(true);
     })();
     const cleanup = (): void => {
       engine.quit();
@@ -81,10 +88,14 @@ function usePlayer(
     }
     const engine = player.engine;
     const chessJsColor = color === 'white' ? 'w' : 'b';
-    if (!position.isGameOver() && position.chess.turn() === chessJsColor) {
+    if (
+      gameStarted &&
+      !position.isGameOver() &&
+      position.chess.turn() === chessJsColor
+    ) {
       engine.position(position).play(clock);
     }
-  }, [player, color, position, clock]);
+  }, [player, color, gameStarted, position, clock]);
 
   // Make the engine's move
   React.useEffect(() => {
@@ -101,6 +112,8 @@ function usePlayer(
       engine.events.off('bestmove', handleBestMove);
     };
   }, [player, position, setPosition, clock]);
+
+  return isReady;
 }
 
 interface Props {
@@ -111,10 +124,58 @@ interface Props {
 
 export function Play(props: Readonly<Props>): JSX.Element {
   const { timeControl, whitePlayer, blackPlayer } = props;
+  const [gameStarted, setGameStarted] = React.useState(false);
   const [position, setPosition] = React.useState(new Position());
-  const [clock, setClock] = React.useState(new Clock(timeControl));
-  usePlayer(whitePlayer, 'white', position, setPosition, clock);
-  usePlayer(blackPlayer, 'black', position, setPosition, clock);
+  const [clock, setClock] = React.useState(new Clock(timeControl, 'white'));
+  const whiteIsReady = usePlayer(
+    whitePlayer,
+    'white',
+    position,
+    setPosition,
+    clock,
+    gameStarted,
+  );
+  const blackIsReady = usePlayer(
+    blackPlayer,
+    'black',
+    position,
+    setPosition,
+    clock,
+    gameStarted,
+  );
+
+  const newGame = React.useCallback(
+    (fen?: string) => {
+      if (whitePlayer.type === 'computer') {
+        whitePlayer.engine.newGame();
+      }
+      if (blackPlayer.type === 'computer') {
+        blackPlayer.engine.newGame();
+      }
+      const nextPosition = new Position(fen);
+      const turn = nextPosition.chess.turn() === 'w' ? 'white' : 'black';
+      const nextClock = new Clock(timeControl, turn);
+      // If the first player to move is an engine, start the clock.  If it's
+      // a player, leave the clock paused until it's their turn.
+      if (
+        (turn === 'white' && whitePlayer.type === 'computer') ||
+        (turn === 'black' && blackPlayer.type === 'computer')
+      ) {
+        nextClock.start();
+      }
+      setPosition(nextPosition);
+      setClock(nextClock);
+    },
+    [whitePlayer, blackPlayer, timeControl],
+  );
+
+  const loading = !whiteIsReady || !blackIsReady;
+  React.useEffect(() => {
+    if (!loading) {
+      newGame();
+      setGameStarted(true);
+    }
+  }, [loading, newGame]);
 
   const onFenInput = React.useCallback(
     (fen: string, type: 'explicit' | 'implicit') => {
@@ -129,16 +190,9 @@ export function Play(props: Readonly<Props>): JSX.Element {
         return;
       }
       // Fen changed, let's update the position
-      setPosition(new Position(fen));
-      setClock(new Clock(timeControl));
-      if (whitePlayer.type === 'computer') {
-        whitePlayer.engine.newGame();
-      }
-      if (blackPlayer.type === 'computer') {
-        blackPlayer.engine.newGame();
-      }
+      newGame(fen);
     },
-    [position, timeControl, whitePlayer, blackPlayer],
+    [position, newGame],
   );
 
   React.useEffect(() => {
@@ -221,7 +275,16 @@ export function Play(props: Readonly<Props>): JSX.Element {
     height: boardWidth + 'px',
   };
 
-  let canMove = !position.isGameOver();
+  let loadingOverlay = null;
+  if (loading) {
+    loadingOverlay = (
+      <div className={css.loadingOverlay}>
+        <Spinner />
+      </div>
+    );
+  }
+
+  let canMove = !loading && !position.isGameOver();
   if (position.chess.turn() === 'w') {
     if (whitePlayer.type === 'computer') {
       canMove = false;
@@ -236,6 +299,7 @@ export function Play(props: Readonly<Props>): JSX.Element {
       <div className={css.leftPane}>
         <div className={css.boardContainer} style={boardContainerStyle}>
           <Board chess={position.chess} canMove={canMove} onMove={onMove} />
+          {loadingOverlay}
         </div>
         <div ref={setBottomLeftPaneRef} className={css.bottomLeftPane}>
           <div className={css.inputRow}>

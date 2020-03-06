@@ -15,22 +15,26 @@ document.addEventListener('dragover', (e: DragEvent) => {
 });
 
 function App(): JSX.Element {
-  const [whitePlayer, _setWhitePlayer] = React.useState(() => {
-    const player = makeComputerPlayer('Stockfish');
-    player.engine.setOptions({
-      'Skill Level': 10,
-    });
-    return player;
-  });
-  const [blackPlayer, _setBlackPlayer] = React.useState(
+  const [whitePlayer, _setWhitePlayer] = React.useState(
+    // makeHumanPlayer('Andrew'),
     makeComputerPlayer('Stockfish'),
+    // () => {
+    //   const player = makeComputerPlayer('Stockfish');
+    //   player.engine.setOptions({
+    //     'Skill Level': 15,
+    //   });
+    //   return player;
+    // },
+  );
+  const [blackPlayer, _setBlackPlayer] = React.useState(
+    makeComputerPlayer('Chessey'),
     // makeHumanPlayer('Andrew'),
   );
   const [timeControl, _setTimeControl] = React.useState({
     white: 60 * 1000,
     black: 60 * 1000,
-    whiteIncrement: 1000,
-    blackIncrement: 1000,
+    whiteIncrement: 2000,
+    blackIncrement: 2000,
   });
 
   return (
