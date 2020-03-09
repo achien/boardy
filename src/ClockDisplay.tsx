@@ -26,7 +26,17 @@ export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
     };
   }, [clock]);
 
-  requestAnimationFrame(forceUpdate);
+  React.useEffect(() => {
+    let requestID: number;
+    const update = (): void => {
+      forceUpdate();
+      requestID = requestAnimationFrame(update);
+    };
+    requestID = requestAnimationFrame(update);
+    return (): void => {
+      cancelAnimationFrame(requestID);
+    };
+  }, []);
 
   const hours = Math.floor(time / MSEC_IN_HOUR);
   const minutes = Math.floor((time % MSEC_IN_HOUR) / MSEC_IN_MIN);

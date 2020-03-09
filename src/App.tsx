@@ -18,7 +18,8 @@ document.addEventListener('dragover', (e: DragEvent) => {
 function App(): JSX.Element {
   const [whitePlayer, _setWhitePlayer] = React.useState(
     // makeHumanPlayer('Andrew'),
-    makeComputerPlayer('Stockfish'),
+    // makeComputerPlayer('Chessier'),
+    makeComputerPlayer('Komodo'),
     // () => {
     //   const player = makeComputerPlayer('Stockfish');
     //   player.engine.setOptions({
@@ -28,7 +29,8 @@ function App(): JSX.Element {
     // },
   );
   const [blackPlayer, _setBlackPlayer] = React.useState(
-    makeComputerPlayer('Komodo'),
+    // makeComputerPlayer('Chessier'),
+    makeComputerPlayer('Stockfish'),
     // makeHumanPlayer('Andrew'),
   );
   const [timeControl, _setTimeControl] = React.useState({
