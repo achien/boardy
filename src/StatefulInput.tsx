@@ -5,41 +5,45 @@ interface StatefulInputProps extends React.HTMLAttributes<HTMLElement> {
   value: string;
   // Explicit is when user hits enter
   // Implicit is when user blurs
-  onValueInput: (value: string, type: 'explicit' | 'implicit') => void;
+  onValueInput: (value: string) => void;
 }
 
 export function StatefulInput(props: StatefulInputProps): JSX.Element {
   const { type, value, onValueInput, ...otherProps } = props;
   const [inputValue, setInputValue] = React.useState(value);
   const [focused, setFocused] = React.useState(false);
+  const [valueOnFocus, setValueOnFocus] = React.useState<string>();
 
   const onChange = React.useCallback((e: React.FormEvent) => {
-    const target = e.target as HTMLInputElement;
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
     setInputValue(target.value);
   }, []);
 
-  const onFocus = React.useCallback(() => setFocused(true), []);
+  const onFocus = React.useCallback(() => {
+    setValueOnFocus(inputValue);
+    setFocused(true);
+  }, [inputValue]);
   const onBlur = React.useCallback(() => {
     setFocused(false);
-    onValueInput(inputValue, 'implicit');
-  }, [onValueInput, inputValue]);
+    // If the user clicks into the input and makes no changes, don't fire
+    // the callback on blur
+    if (inputValue !== valueOnFocus) {
+      onValueInput(inputValue);
+    }
+  }, [onValueInput, inputValue, valueOnFocus]);
   const onKeyDown = React.useCallback(
     (e: React.KeyboardEvent) => {
-      // "Enter" submits
+      // "Enter" submits always, even if no changes were made
       if (e.keyCode === 13) {
-        onValueInput(inputValue, 'explicit');
+        onValueInput(inputValue);
       }
     },
     [onValueInput, inputValue],
   );
 
-  // Update input value with new value if the component is not focused
-  const prevValueRef = React.useRef(value);
+  // Update input value with new value if the component is not focused,
+  // or when the component loses focus
   React.useEffect(() => {
-    if (prevValueRef.current === value) {
-      return;
-    }
-    prevValueRef.current = value;
     if (!focused) {
       setInputValue(value);
     }

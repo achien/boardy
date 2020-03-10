@@ -143,12 +143,8 @@ export function Play(props: Readonly<Props>): JSX.Element {
   }, [loading, newGame]);
 
   const onFenInput = React.useCallback(
-    (fen: string, type: 'explicit' | 'implicit') => {
+    (fen: string) => {
       fen = fen.trim();
-      if (type === 'implicit' && fen === position.chess.fen()) {
-        // Don't refresh the position if user clicks in and out of the input
-        return;
-      }
       const valid = position.chess.validate_fen(fen);
       if (!valid.valid) {
         console.warn(`Invalid fen (${valid.error_number}): ${valid.error}`);

@@ -34,7 +34,7 @@ const ENGINES = {
   Stockfish:
     '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
   Chessey: '/Users/andrewchien/code/chessey/build/chessey',
-  Chessier: '/Users/andrewchien/code/chessier/target/debug/chessier',
+  Chessier: '/Users/andrewchien/code/chessier/target/release/chessier',
   Komodo: '/Users/andrewchien/Downloads/komodo-10_ae4bdf/OSX/komodo-10-64-osx',
 };
 
