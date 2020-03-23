@@ -12,7 +12,9 @@ export function StatefulInput(props: StatefulInputProps): JSX.Element {
   const { type, value, onValueInput, ...otherProps } = props;
   const [inputValue, setInputValue] = React.useState(value);
   const [focused, setFocused] = React.useState(false);
-  const [valueOnFocus, setValueOnFocus] = React.useState<string>();
+  const [valueOnFocusOrEnter, setValueOnFocusOrEnter] = React.useState<
+    string
+  >();
 
   const onChange = React.useCallback((e: React.FormEvent) => {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement;
@@ -20,21 +22,22 @@ export function StatefulInput(props: StatefulInputProps): JSX.Element {
   }, []);
 
   const onFocus = React.useCallback(() => {
-    setValueOnFocus(inputValue);
+    setValueOnFocusOrEnter(inputValue);
     setFocused(true);
   }, [inputValue]);
   const onBlur = React.useCallback(() => {
     setFocused(false);
     // If the user clicks into the input and makes no changes, don't fire
     // the callback on blur
-    if (inputValue !== valueOnFocus) {
+    if (inputValue !== valueOnFocusOrEnter) {
       onValueInput(inputValue);
     }
-  }, [onValueInput, inputValue, valueOnFocus]);
+  }, [onValueInput, inputValue, valueOnFocusOrEnter]);
   const onKeyDown = React.useCallback(
     (e: React.KeyboardEvent) => {
       // "Enter" submits always, even if no changes were made
       if (e.keyCode === 13) {
+        setValueOnFocusOrEnter(inputValue);
         onValueInput(inputValue);
       }
     },

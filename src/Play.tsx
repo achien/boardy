@@ -1,18 +1,22 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Move } from 'chess.js';
+import Chess, { Move } from 'chess.js';
 
 import { Board } from './board/Board';
 import { Clock, TimeControl } from './Clock';
 import { ClockDisplay } from './ClockDisplay';
 import { History } from './History';
-import { HumanPlayer, ComputerPlayer, Player } from './Player';
+import { ComputerPlayer, Player } from './Player';
 import { Position } from './Position';
 import { Spinner } from './Spinner';
 import { StatefulInput } from './StatefulInput';
 import { useDimensions } from './useDimensions';
 
 import styles from './Play.css';
+
+// const INITIAL_POSITION = '6k1/5ppp/8/8/8/8/8/1R4K1 w - - 0 1';
+// const INITIAL_POSITION = '8/8/8/8/8/3k1r2/6K1/8 b - - 0 1';
+const INITIAL_POSITION = undefined;
 
 function usePlayer(
   player: Player,
@@ -137,7 +141,7 @@ export function Play(props: Readonly<Props>): JSX.Element {
   const loading = !whiteIsReady || !blackIsReady;
   React.useEffect(() => {
     if (!loading) {
-      newGame();
+      newGame(INITIAL_POSITION);
       setGameStarted(true);
     }
   }, [loading, newGame]);
@@ -159,9 +163,11 @@ export function Play(props: Readonly<Props>): JSX.Element {
   React.useEffect(() => {
     if (position.isGameOver()) {
       clock.stop();
+      console.log(position.chess.pgn());
+      // newGame(INITIAL_POSITION);
       return;
     }
-  }, [position, clock]);
+  }, [position, clock, newGame]);
   React.useEffect(() => {
     const handleFlag = (color: 'white' | 'black'): void => {
       setPosition(position.flag(color));

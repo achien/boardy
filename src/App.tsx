@@ -18,8 +18,8 @@ document.addEventListener('dragover', (e: DragEvent) => {
 function App(): JSX.Element {
   const [whitePlayer, _setWhitePlayer] = React.useState(
     // makeHumanPlayer('Andrew'),
-    makeComputerPlayer('Chessier'),
-    // makeComputerPlayer('Komodo'),
+    makeComputerPlayer('ChessierPrev'),
+    // makeComputerPlayer('Stockfish'),
     // () => {
     //   const player = makeComputerPlayer('Stockfish');
     //   player.engine.setOptions({
@@ -34,10 +34,10 @@ function App(): JSX.Element {
     // makeHumanPlayer('Andrew'),
   );
   const [timeControl, _setTimeControl] = React.useState({
-    white: 60 * 1000,
-    black: 60 * 1000,
-    whiteIncrement: 2000,
-    blackIncrement: 2000,
+    white: 600 * 1000,
+    black: 600 * 1000,
+    whiteIncrement: 60 * 1000,
+    blackIncrement: 60 * 1000,
   });
 
   return (
