@@ -1,6 +1,6 @@
 import * as assert from 'browser-assert';
 
-import Chess, { ChessInstance, ShortMove } from 'chess.js';
+import { Chess, ChessInstance, ShortMove } from 'chess.js';
 
 interface GameResult {
   winner: 'white' | 'black' | 'draw';

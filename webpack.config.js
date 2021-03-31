@@ -14,6 +14,14 @@ const jsConfig = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      // chess.js doesn't export itself correctly if `define` exists
+      // https://github.com/jhlywa/chess.js/issues/208#issuecomment-647018698
+      {
+        test: /chess.js/,
+        parser: {
+          amd: false,
+        },
+      },
     ],
   },
   resolve: {
