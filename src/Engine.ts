@@ -131,8 +131,19 @@ export class Engine {
   // Starts the engine process then sends 'uci' and waits for 'uciok'.  At
   // this point we know the engine identity and all options.
   start = memoize(async () => {
-    this.process = spawn(this.path);
-    this.readline = readline.createInterface(this.process.stdout!);
+    this.process = spawn(this.path, [], {});
+    this.process.on('error', e => console.error(this.name, 'process error', e));
+    this.process.on('close', (...args) =>
+      console.error(this.name, 'process close', args),
+    );
+    const stdout = this.process.stdout!;
+    // stdout.setEncoding('utf8');
+    // stdout.on('data', x => console.warn(this.name, 'data', x));
+    // stdout.on('readable', () => {
+    //   console.warn(this.name, 'readable');
+    //   stdout.read();
+    // });
+    this.readline = readline.createInterface(stdout);
     this.readline.on('line', line => this.receive(line));
     this.readline.on('pause', () => {
       console.warn(`<${this.name}> input paused`);
@@ -409,7 +420,7 @@ export class Engine {
     }
   }
 
-  private send(msg: string): void {
+  send(msg: string): void {
     console.log(`<Boardy> ${msg}`);
     this.process!.stdin!.write(msg + '\n');
   }

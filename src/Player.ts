@@ -32,11 +32,11 @@ export class ComputerPlayer extends Player {
 
 const ENGINES = {
   Stockfish:
-    '/Users/andrewchien/Downloads/stockfish-11-mac/Mac/stockfish-11-modern',
+    'C:/Users/Andrew/Downloads/stockfish-11-win/Windows/stockfish_20011801_x64_modern.exe',
   Chessey: '/Users/andrewchien/code/chessey/build/chessey',
-  Chessier: '/Users/andrewchien/code/chessier/target/release/chessier',
-  ChessierPrev: '/tmp/chessier-prev',
-  Komodo: '/Users/andrewchien/Downloads/komodo-10_ae4bdf/OSX/komodo-10-64-osx',
+  Chessier: '/Users/andrewchien/code/chessier/target/debug/chessier',
+  Komodo:
+    'C:/Users/Andrew/Downloads/komodo-10_ae4bdf/Windows/komodo-10-64bit.exe',
 };
 
 export function makeComputerPlayer(name: keyof typeof ENGINES): ComputerPlayer {

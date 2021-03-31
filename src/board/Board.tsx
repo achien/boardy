@@ -22,7 +22,7 @@ function getMovesByTarget(
     square: square,
   });
   const movesByTarget: Record<string, Move> = {};
-  moves.forEach(move => {
+  moves.forEach((move) => {
     if (move.to in movesByTarget) {
       const other = movesByTarget[move.to];
       if (!(move.promotion && other.promotion)) {
@@ -80,8 +80,11 @@ export function Board(props: BoardProps): JSX.Element {
     [containerRect, boardWidth],
   );
 
-  const movesByTarget: Record<string, Move> =
-    selectedSquare === null ? {} : getMovesByTarget(chess, selectedSquare);
+  const movesByTarget: Record<string, Move> = React.useMemo(
+    () =>
+      selectedSquare === null ? {} : getMovesByTarget(chess, selectedSquare),
+    [selectedSquare, chess],
+  );
 
   React.useEffect(() => {
     if (!canMove) {

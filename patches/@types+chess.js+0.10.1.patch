@@ -1,10 +1,11 @@
 diff --git a/node_modules/@types/chess.js/index.d.ts b/node_modules/@types/chess.js/index.d.ts
-index 1e9e7ae..80c0e64 100644
+index 4bcfbb6..9669aea 100644
 --- a/node_modules/@types/chess.js/index.d.ts
 +++ b/node_modules/@types/chess.js/index.d.ts
-@@ -528,3 +528,4 @@ export const Chess: {
+@@ -640,3 +640,5 @@ export const Chess: {
       */
      new (fen?: string): ChessInstance;
  };
++
 +export default Chess;
 \ No newline at end of file

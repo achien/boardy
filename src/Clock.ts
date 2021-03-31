@@ -50,7 +50,7 @@ export class Clock {
     this.updateFlagTimer();
   }
 
-  press(): void {
+  pressAndPause(): void {
     // To unpause while pressing we switch the colors then start the clock.
     // This is used for the first move of the game when the clock starts paused.
     if (this.isStopped()) {
@@ -58,6 +58,7 @@ export class Clock {
       return;
     }
     this.update();
+    this.updateTime = null;
     if (this.turn === 'white') {
       this.turn = 'black';
       this.white += this.whiteIncrement;

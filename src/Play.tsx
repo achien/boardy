@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Chess, { Move } from 'chess.js';
+import { Move } from 'chess.js';
 
 import { Board } from './board/Board';
 import { Clock, TimeControl } from './Clock';
@@ -52,17 +52,16 @@ function usePlayer(
 
   // Have the engine play when it's their turn
   React.useEffect(() => {
-    if (!(player instanceof ComputerPlayer)) {
-      return;
-    }
-    const engine = player.engine;
     const chessJsColor = color === 'white' ? 'w' : 'b';
     if (
       gameStarted &&
       !position.isGameOver() &&
       position.chess.turn() === chessJsColor
     ) {
-      engine.position(position).play(clock);
+      if (player instanceof ComputerPlayer) {
+        player.engine.position(position).play(clock);
+      }
+      clock.start();
     }
   }, [player, color, gameStarted, position, clock]);
 
@@ -74,7 +73,7 @@ function usePlayer(
     const engine = player.engine;
     const handleBestMove = (move: string): void => {
       setPosition(position.move(move));
-      clock.press();
+      clock.pressAndPause();
     };
     engine.events.on('bestmove', handleBestMove);
     return (): void => {
@@ -182,7 +181,7 @@ export function Play(props: Readonly<Props>): JSX.Element {
     (move: Move) => {
       console.log('Move!', move);
       setPosition(position.move(move));
-      clock.press();
+      clock.pressAndPause();
     },
     [position, clock],
   );

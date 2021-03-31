@@ -6,6 +6,7 @@ function createWindow(): void {
     height: 800,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
     },
   });
   win.loadFile('dist/app.html');

@@ -1,19 +1,14 @@
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const jsConfig = {
   mode: 'development',
   devtool: 'inline-source-map',
   module: {
     rules: [
-      {
-        enforce: 'pre',
-        test: /\.(ts|js)x?$/,
-        use: 'eslint-loader',
-        exclude: /node_modules/,
-      },
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
@@ -64,6 +59,7 @@ module.exports = [
       ],
     },
     plugins: [
+      new ESLintPlugin(),
       new MiniCssExtractPlugin(),
       new HtmlWebpackPlugin({
         filename: 'app.html',
