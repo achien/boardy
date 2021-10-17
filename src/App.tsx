@@ -17,15 +17,15 @@ document.addEventListener('dragover', (e: DragEvent) => {
 
 function App(): JSX.Element {
   const [whitePlayer, _setWhitePlayer] = React.useState(
-    makeHumanPlayer('Andrew'),
+    // makeHumanPlayer('Andrew'),
     // makeComputerPlayer('Komodo'),
-    // () => {
-    //   const player = makeComputerPlayer('Stockfish');
-    //   player.engine.setOptions({
-    //     'Skill Level': 15,
-    //   });
-    //   return player;
-    // },
+    () => {
+      const player = makeComputerPlayer('Stockfish');
+      player.engine.setOptions({
+        'Skill Level': 15,
+      });
+      return player;
+    },
   );
   const [blackPlayer, _setBlackPlayer] = React.useState(
     makeComputerPlayer('Stockfish'),
@@ -34,7 +34,7 @@ function App(): JSX.Element {
   const [timeControl, _setTimeControl] = React.useState({
     white: 60 * 1000,
     black: 60 * 1000,
-    whiteIncrement: 60 * 1000,
+    whiteIncrement: 0 * 1000,
     blackIncrement: 0 * 1000,
   });
 
@@ -47,7 +47,7 @@ function App(): JSX.Element {
   );
 }
 
-(async function(): Promise<void> {
+(async function (): Promise<void> {
   const root = document.createElement('div');
   root.className = styles.reactRoot;
   document.body.appendChild(root);

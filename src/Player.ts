@@ -32,11 +32,9 @@ export class ComputerPlayer extends Player {
 
 const ENGINES = {
   Stockfish:
-    'C:/Users/Andrew/Downloads/stockfish-11-win/Windows/stockfish_20011801_x64_modern.exe',
+    'C:/Users/Andrew/Downloads/stockfish_14_win_x64_avx2/stockfish_14_x64_avx2.exe',
   Chessey: '/Users/andrewchien/code/chessey/build/chessey',
-  Chessier: '/Users/andrewchien/code/chessier/target/debug/chessier',
-  Komodo:
-    'C:/Users/Andrew/Downloads/komodo-10_ae4bdf/Windows/komodo-10-64bit.exe',
+  Chesser: '/Users/andrewchien/code/chessier/target/debug/chessier',
 };
 
 export function makeComputerPlayer(name: keyof typeof ENGINES): ComputerPlayer {

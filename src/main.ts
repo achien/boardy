@@ -12,11 +12,6 @@ function createWindow(): void {
   win.loadFile('dist/app.html');
 }
 
-// There is a warning when using the default instead of setting this to true
-// because the value will change in Electron 9.
-// https://github.com/electron/electron/issues/18397
-app.allowRendererProcessReuse = true;
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

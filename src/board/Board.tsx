@@ -28,7 +28,7 @@ function getMovesByTarget(
       if (!(move.promotion && other.promotion)) {
         console.error(
           `Multiple non-promotiton moves from ${square} to ${move.to}: ` +
-            `${movesByTarget[move.to].san} and ${move.san}`,
+          `${movesByTarget[move.to].san} and ${move.san}`,
         );
       }
     }
