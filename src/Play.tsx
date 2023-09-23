@@ -1,6 +1,5 @@
+import { Move, validateFen } from 'chess.js';
 import * as React from 'react';
-import classNames from 'classnames/bind';
-import { Move } from 'chess.js';
 
 import { Board } from './board/Board';
 import { Clock, TimeControl } from './Clock';
@@ -148,9 +147,9 @@ export function Play(props: Readonly<Props>): JSX.Element {
   const onFenInput = React.useCallback(
     (fen: string) => {
       fen = fen.trim();
-      const valid = position.chess.validate_fen(fen);
-      if (!valid.valid) {
-        console.warn(`Invalid fen (${valid.error_number}): ${valid.error}`);
+      const valid = validateFen(fen);
+      if (!valid.ok) {
+        console.warn(`Invalid fen: ${valid.error}`);
         return;
       }
       // Fen changed, let's update the position
@@ -276,7 +275,7 @@ export function Play(props: Readonly<Props>): JSX.Element {
               value={position.chess.fen()}
               onValueInput={onFenInput}
               id="fen"
-              className={classNames(styles.input, styles.fenInput)}
+              className={[styles.input, styles.fenInput].join(' ')}
             />
           </div>
         </div>

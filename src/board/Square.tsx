@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChessInstance, Square as TSquare } from 'chess.js';
+import { Chess, Square as TSquare } from 'chess.js';
 
 import { Piece } from './Piece';
 
@@ -19,7 +19,7 @@ const SELECTED_FILTER = 'hue-rotate(60deg) brightness(50%)';
 export type SquareHighlight = null | 'selected' | 'targeted' | 'hovered';
 
 interface SquareProps {
-  chess: ChessInstance;
+  chess: Chess;
   square: TSquare;
   highlight: SquareHighlight;
   draggable: boolean;
@@ -41,7 +41,7 @@ export function Square(props: SquareProps): JSX.Element {
     );
   }
 
-  const squareColor = COLORS[chess.square_color(square)];
+  const squareColor = COLORS[chess.squareColor(square)!];
   let target = null;
   if (props.highlight === 'targeted') {
     let svg;

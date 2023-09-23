@@ -1,5 +1,5 @@
 import * as React from 'react';
-import classNames from 'classnames';
+import * as classNames from 'classnames';
 
 import { Clock } from './Clock';
 
@@ -16,7 +16,7 @@ interface ClockDisplayProps {
 
 export function ClockDisplay(props: ClockDisplayProps): JSX.Element {
   const { clock, color } = props;
-  const [_, forceUpdate] = React.useReducer(x => x + 1, 0);
+  const [_, forceUpdate] = React.useReducer((x) => x + 1, 0);
   const time = Math.max(0, clock.get(color));
 
   React.useEffect(() => {

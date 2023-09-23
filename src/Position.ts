@@ -1,46 +1,49 @@
 import * as assert from 'browser-assert';
 
-import { Chess, ChessInstance, ShortMove } from 'chess.js';
+import { Chess, Move } from 'chess.js';
 
 interface GameResult {
   winner: 'white' | 'black' | 'draw';
   reason: string;
 }
 
-function getGameResult(chess: ChessInstance): GameResult | null {
-  if (chess.in_checkmate()) {
+function getGameResult(chess: Chess): GameResult | null {
+  if (chess.isCheckmate()) {
     return {
       winner: chess.turn() == 'w' ? 'black' : 'white',
       reason: 'Checkmate',
     };
-  } else if (chess.in_stalemate()) {
+  } else if (chess.isStalemate()) {
     return {
       winner: 'draw',
       reason: 'Stalemate',
     };
-  } else if (chess.insufficient_material()) {
+  } else if (chess.isInsufficientMaterial()) {
     return {
       winner: 'draw',
       reason: 'Insufficient Material',
     };
-  } else if (chess.in_threefold_repetition()) {
+  } else if (chess.isThreefoldRepetition()) {
     return {
       winner: 'draw',
       reason: 'Threefold Repetition',
     };
-  } else if (chess.in_draw()) {
+  } else if (chess.isDraw()) {
     return {
       winner: 'draw',
       reason: 'Draw',
     };
   }
-  assert(!chess.game_over(), 'Unhandled chess game over state: ' + chess.fen());
+  assert(
+    !chess.isGameOver(),
+    'Unhandled chess game over state: ' + chess.fen(),
+  );
   return null;
 }
 
 export class Position {
   initialFen: string;
-  chess: ChessInstance;
+  chess: Chess;
   gameResult: GameResult | null;
 
   constructor(initialFen: string | undefined = undefined) {
@@ -66,13 +69,13 @@ export class Position {
     return clone;
   }
 
-  move(move: string | ShortMove): Position {
+  move(move: string | Move): Position {
     assert(!this.isGameOver(), 'Trying to make move after game has ended');
 
     const nextPosition = this.clone();
 
     // UCI uses long algebraic which is "sloppy"
-    nextPosition.chess.move(move, { sloppy: true });
+    nextPosition.chess.move(move);
     assert(nextPosition.chess.turn() !== this.chess.turn());
 
     nextPosition.gameResult = getGameResult(nextPosition.chess);

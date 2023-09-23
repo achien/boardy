@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChessInstance, Move, Square as TSquare } from 'chess.js';
+import { Chess, Move, Square as TSquare } from 'chess.js';
 
 import { PromotionOverlay, PromotionPiece } from './PromotionOverlay';
 import { Square, SquareHighlight } from './Square';
@@ -8,15 +8,12 @@ import { useDimensions } from '../useDimensions';
 import styles from './Board.css';
 
 interface BoardProps {
-  chess: ChessInstance;
+  chess: Chess;
   canMove?: boolean;
   onMove?: (move: Move) => void;
 }
 
-function getMovesByTarget(
-  chess: ChessInstance,
-  square: TSquare,
-): Record<string, Move> {
+function getMovesByTarget(chess: Chess, square: TSquare): Record<string, Move> {
   const moves = chess.moves({
     verbose: true,
     square: square,
@@ -28,7 +25,7 @@ function getMovesByTarget(
       if (!(move.promotion && other.promotion)) {
         console.error(
           `Multiple non-promotiton moves from ${square} to ${move.to}: ` +
-          `${movesByTarget[move.to].san} and ${move.san}`,
+            `${movesByTarget[move.to].san} and ${move.san}`,
         );
       }
     }
@@ -45,10 +42,8 @@ export function Board(props: BoardProps): JSX.Element {
   const [selectedSquare, setSelectedSquare] = React.useState<TSquare | null>(
     null,
   );
-  const [
-    deselectingSquare,
-    setDeselectingSquare,
-  ] = React.useState<TSquare | null>(null);
+  const [deselectingSquare, setDeselectingSquare] =
+    React.useState<TSquare | null>(null);
   const [hoveredSquare, setHoveredSquare] = React.useState<TSquare | null>(
     null,
   );
