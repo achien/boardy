@@ -5,7 +5,7 @@ const path =
   'C:/Users/Andrew/Downloads/stockfish-11-win/Windows/stockfish_20011801_x64_modern.exe';
 const stockfish = spawn(path);
 stockfish.stdout.setEncoding('utf8');
-stockfish.stdout.on('data', x => {
+stockfish.stdout.on('data', (x) => {
   console.log('data:', x);
   if (x.indexOf('bestmove') >= 0) {
     stockfish.stdin.write('quit\n');

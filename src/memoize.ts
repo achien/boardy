@@ -3,7 +3,7 @@ export default function memoize<Tr, Ta extends any[]>(
   f: (...args: Ta) => Tr,
 ): (...args: Ta) => Tr {
   const cache: Record<string, Tr> = {};
-  return function(...args: Ta): Tr {
+  return function (...args: Ta): Tr {
     const key = JSON.stringify(args);
     if (key in cache) {
       return cache[key];

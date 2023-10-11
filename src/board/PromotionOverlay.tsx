@@ -13,10 +13,8 @@ interface Props {
 
 export function PromotionOverlay(props: Props): JSX.Element {
   const { color, onClose } = props;
-  const [
-    clickStartPiece,
-    setClickStartPiece,
-  ] = React.useState<PromotionPiece | null>(null);
+  const [clickStartPiece, setClickStartPiece] =
+    React.useState<PromotionPiece | null>(null);
 
   // Track which piece the user started to click on to work around some
   // weirdness in click events.  Click events are fired where the mouse is

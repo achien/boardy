@@ -45,7 +45,7 @@ export function History(props: HistoryProps): JSX.Element {
     }
   }, [bottomRef, position]);
 
-  const rows = movePairs.map(movePair => {
+  const rows = movePairs.map((movePair) => {
     const { moveNumber, whiteMove, blackMove } = movePair;
     return (
       <tr key={moveNumber}>

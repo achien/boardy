@@ -132,7 +132,9 @@ export class Engine {
   // this point we know the engine identity and all options.
   start = memoize(async () => {
     this.process = spawn(this.path, [], {});
-    this.process.on('error', e => console.error(this.name, 'process error', e));
+    this.process.on('error', (e) =>
+      console.error(this.name, 'process error', e),
+    );
     this.process.on('close', (...args) =>
       console.error(this.name, 'process close', args),
     );
@@ -144,14 +146,14 @@ export class Engine {
     //   stdout.read();
     // });
     this.readline = readline.createInterface(stdout);
-    this.readline.on('line', line => this.receive(line));
+    this.readline.on('line', (line) => this.receive(line));
     this.readline.on('pause', () => {
       console.warn(`<${this.name}> input paused`);
     });
 
     readline
       .createInterface(this.process.stderr!)
-      .on('line', line => console.error(`<${this.name}> ` + line));
+      .on('line', (line) => console.error(`<${this.name}> ` + line));
 
     this.send('uci');
     await this.waitForState(State.UCI);
@@ -223,7 +225,7 @@ export class Engine {
     }
     const moves = position.chess.history({ verbose: true }).map(
       // Convert into long algebraic notation for UCI
-      move => move.from + move.to + (move.promotion || ''),
+      (move) => move.from + move.to + (move.promotion || ''),
     );
     if (moves.length > 0) {
       command += ` moves ${moves.join(' ')}`;
@@ -261,7 +263,7 @@ export class Engine {
     console.log(`<${this.name}> ${msg}`);
 
     const handlers: Record<string, ((tokens: string[]) => void) | null> = {
-      id: tokens => {
+      id: (tokens) => {
         switch (tokens[0]) {
           case 'name':
             this.fullName = tokens.join(' ');
@@ -275,9 +277,9 @@ export class Engine {
       },
       uciok: () => this.setState(State.UCI),
       readyok: () => this.setState(State.Ready),
-      option: tokens => this.handleOption(tokens),
+      option: (tokens) => this.handleOption(tokens),
       info: null,
-      bestmove: tokens => this.events.emit('bestmove', tokens[0]),
+      bestmove: (tokens) => this.events.emit('bestmove', tokens[0]),
     };
 
     const tokens = msg.split(/\s+/);

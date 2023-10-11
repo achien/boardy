@@ -12,9 +12,8 @@ export function StatefulInput(props: StatefulInputProps): JSX.Element {
   const { type, value, onValueInput, ...otherProps } = props;
   const [inputValue, setInputValue] = React.useState(value);
   const [focused, setFocused] = React.useState(false);
-  const [valueOnFocusOrEnter, setValueOnFocusOrEnter] = React.useState<
-    string
-  >();
+  const [valueOnFocusOrEnter, setValueOnFocusOrEnter] =
+    React.useState<string>();
 
   const onChange = React.useCallback((e: React.FormEvent) => {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement;
