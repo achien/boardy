@@ -1,6 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
 import * as readline from 'readline';
-import * as assert from 'browser-assert';
+import * as assert from 'assert';
 import * as EventEmitter from 'events';
 import memoize from './memoize';
 import { Position } from './Position';

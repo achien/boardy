@@ -1,4 +1,4 @@
-import * as assert from 'browser-assert';
+import * as assert from 'assert';
 
 import { Chess, Move } from 'chess.js';
 
